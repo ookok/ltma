@@ -1,5 +1,4 @@
 import {
-  "wzzc-dev/webview-ffi/webview" @webview,
   "livingtree/ltma/core",
   "livingtree/ltma/host",
   "livingtree/ltma/agent",
@@ -7,11 +6,10 @@ import {
   "livingtree/ltma/tool",
   "livingtree/ltma/tool/builtin",
   "livingtree/ltma/agents",
-  "livingtree/ltma/orchestration",
-  "livingtree/ltma/memory",
-  "livingtree/ltma/embedding",
+  "moonbitlang/async",
+  "moonbitlang/async/http" @async_http,
+  "moonbitlang/async/socket" @socket,
   "moonbitlang/x/fs" @xfs,
-  "moonbitlang/core/env",
 }
 
 options("is-main": true, "supported-targets": "native")
