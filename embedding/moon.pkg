@@ -1,5 +1,6 @@
 import {
   "livingtree/ltma/memory",
+  "moonbitlang/x/fs" @xfs,
   "moonbitlang/core/encoding/utf8",
 }
 

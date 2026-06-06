@@ -4,8 +4,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WIN32
+  #define POPEN _popen
+  #define PCLOSE _pclose
+#else
+  #define POPEN popen
+  #define PCLOSE pclose
+#endif
+
 moonbit_bytes_t shell_exec(const char* command) {
-  FILE* pipe = _popen(command, "r");
+  FILE* pipe = POPEN(command, "r");
   if (!pipe) {
     return moonbit_make_bytes(0, 0);
   }
@@ -14,9 +22,9 @@ moonbit_bytes_t shell_exec(const char* command) {
   while (fgets(buf, sizeof(buf), pipe)) {
     total += strlen(buf);
   }
-  _pclose(pipe);
+  PCLOSE(pipe);
 
-  pipe = _popen(command, "r");
+  pipe = POPEN(command, "r");
   if (!pipe) return moonbit_make_bytes(0, 0);
 
   uint8_t* bytes = (uint8_t*)moonbit_make_bytes(total, 0);
@@ -26,6 +34,6 @@ moonbit_bytes_t shell_exec(const char* command) {
     memcpy(bytes + pos, buf, len);
     pos += len;
   }
-  _pclose(pipe);
+  PCLOSE(pipe);
   return (moonbit_bytes_t)bytes;
 }
