@@ -67,10 +67,16 @@ fn setup_host() -> @host.AgentHost {
   let provider = @llm.create_mock_provider("Hello from the AI assistant!")
 
   // Initialize ONNX embedding model
+  // Try non-quantized model first (int8 has shape issues with ONNX RT v1.21)
+  let model_file = if @xfs.path_exists("models/minilm-l6-v2/model.onnx") {
+    "models/minilm-l6-v2/model.onnx"
+  } else {
+    "models/minilm-l6-v2/model.int8.onnx"
+  }
   let embed_provider = @embedding.create_onnx_provider(
-    "models/minilm-l6-v2/model.int8.onnx", "models/minilm-l6-v2/vocab.txt",
+    model_file,
+    "models/minilm-l6-v2/vocab.txt",
   )
-
   let echo_meta = @agent.create_metadata("echo", "Simple echo agent", ["echo"])
   host.register(echo_meta, echo_handle)
 

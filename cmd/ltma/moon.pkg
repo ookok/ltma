@@ -10,6 +10,7 @@ import {
   "livingtree/ltma/memory",
   "livingtree/ltma/embedding",
   "livingtree/ltma/tui",
+  "moonbitlang/x/fs" @xfs,
   "moonbitlang/core/env",
 }
 

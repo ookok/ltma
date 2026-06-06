@@ -12,4 +12,6 @@ target
 *.pdb
 *.dll
 !models/**/*.onnx
-!models/**/*.txt
+!models/**/*.txtmodels/minilm-l6-v2/model.onnx
+models/minilm-l6-v2/model.onnx
+*.obj

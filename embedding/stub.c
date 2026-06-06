@@ -102,7 +102,7 @@ void* embedding_init(const char* model_path, const char* vocab_path) {
   m->api = OrtGetApiBase()->GetApi(ORT_API_VERSION);
   if (!m->api) { free(m); return NULL; }
   OrtStatus* s;
-  s = m->api->CreateEnv(ORT_LOGGING_LEVEL_WARNING, "ltma", &m->env);
+  s = m->api->CreateEnv(ORT_LOGGING_LEVEL_ERROR, "ltma", &m->env);
   if (s) { m->api->ReleaseStatus(s); free(m); return NULL; }
   FILE* mf = fopen(model_path, "rb");
   if (!mf) { m->api->ReleaseEnv(m->env); free(m); return NULL; }
