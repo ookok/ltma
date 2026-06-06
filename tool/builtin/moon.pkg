@@ -4,3 +4,10 @@ import {
   "moonbitlang/x/fs" @xfs,
   "moonbitlang/core/debug",
 }
+
+options(
+  "native-stub": ["shell_stub.c"],
+  targets: {
+    "shell.mbt": ["native"],
+  },
+)
