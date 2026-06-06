@@ -15,6 +15,34 @@ fn main {
 }
 
 ///|
+/// Run the async demo via the async runtime.
+fn run_async_demo() -> Unit {
+  @async.run_async_main(async_fn_demo)
+}
+
+///|
+async fn async_fn_demo() -> Unit {
+  println("\n=== Async LLM Provider Demo ===")
+
+  let config = @llm.LLMConfig::deepseek_default("sk-your-key-here")
+  let provider = @llm.create_async_openai_provider(config)
+  let registry = @tool.ToolRegistry::new()
+  @builtin.register_builtins(registry)
+
+  let agent = @agents.create_async_chat_agent(provider, registry)
+  let ctx = @core.AgentContext::new(
+    @core.AgentId::create("async-chat", "0.1.0", "livingtree/ltma"),
+  )
+  agent.init(ctx)
+  let resp = agent.run(@core.Message::text("Hello! What can you do?"))
+  if resp.is_text() {
+    println("Agent: \{resp.get_text()}")
+  }
+  agent.shutdown()
+  println("=== Async Demo Complete ===")
+}
+
+///|
 fn cmd_list() -> Unit {
   let host = setup_host()
   let agents = host.list_registered()

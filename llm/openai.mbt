@@ -181,14 +181,25 @@ fn extract_tool_calls(body : String) -> Array[ChatToolCall]? {
 }
 
 ///|
-/// Create a sync provider handle for OpenAI-compatible API.
-/// Uses the mock provider internally. For real API calls, use call_openai_api.
+/// Create an async provider handle for OpenAI-compatible API.
+/// Makes real HTTP calls via the async runtime.
+pub fn create_async_openai_provider(config : LLMConfig) -> AsyncLLMProviderHandle {
+  AsyncLLMProviderHandle::{
+    config_fn: fn() { config },
+    chat_fn: async fn(messages, tools) {
+      call_openai_api(config, messages, tools)
+    },
+  }
+}
+
+///|
+/// Create a sync provider handle for OpenAI-compatible API (mock).
 pub fn create_openai_provider(config : LLMConfig) -> LLMProviderHandle {
   LLMProviderHandle::{
     config_fn: fn() { config },
     chat_fn: fn(_messages, _tools) {
       LLMResponse::{
-        content: "[openai provider: sync mode, use call_openai_api for real calls]",
+        content: "[openai provider: sync mode, use create_async_openai_provider for real calls]",
         tool_calls: None,
         finish_reason: "stop",
       }

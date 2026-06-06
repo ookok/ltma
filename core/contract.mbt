@@ -72,3 +72,77 @@ pub fn[T] make_handle(
     execute_tool_fn: fn(call) { execute_tool_fn(a, call) },
   }
 }
+
+///|
+/// AsyncAgentHandle — agent handle with async run
+pub struct AsyncAgentHandle {
+  id_fn : () -> String
+  metadata_fn : () -> AgentMetadata
+  init_fn : (AgentContext) -> Unit
+  run_fn : async (Message) -> Message
+  shutdown_fn : () -> Unit
+  status_fn : () -> AgentStatus
+  execute_tool_fn : (ToolCall) -> ToolResult
+}
+
+///|
+pub fn AsyncAgentHandle::id(self : AsyncAgentHandle) -> String { (self.id_fn)() }
+
+///|
+pub fn AsyncAgentHandle::metadata(self : AsyncAgentHandle) -> AgentMetadata {
+  (self.metadata_fn)()
+}
+
+///|
+pub fn AsyncAgentHandle::init(self : AsyncAgentHandle, ctx : AgentContext) -> Unit {
+  (self.init_fn)(ctx)
+}
+
+///|
+pub async fn AsyncAgentHandle::run(
+  self : AsyncAgentHandle,
+  input : Message,
+) -> Message {
+  (self.run_fn)(input)
+}
+
+///|
+pub fn AsyncAgentHandle::shutdown(self : AsyncAgentHandle) -> Unit {
+  (self.shutdown_fn)()
+}
+
+///|
+pub fn AsyncAgentHandle::status(self : AsyncAgentHandle) -> AgentStatus {
+  (self.status_fn)()
+}
+
+///|
+pub fn AsyncAgentHandle::execute_tool(
+  self : AsyncAgentHandle,
+  call : ToolCall,
+) -> ToolResult {
+  (self.execute_tool_fn)(call)
+}
+
+///|
+pub fn[T] make_async_handle(
+  agent : T,
+  id_fn : (T) -> String,
+  metadata_fn : (T) -> AgentMetadata,
+  init_fn : (T, AgentContext) -> Unit,
+  run_fn : async (T, Message) -> Message,
+  shutdown_fn : (T) -> Unit,
+  status_fn : (T) -> AgentStatus,
+  execute_tool_fn : (T, ToolCall) -> ToolResult,
+) -> AsyncAgentHandle {
+  let a = agent
+  AsyncAgentHandle::{
+    id_fn: fn() { id_fn(a) },
+    metadata_fn: fn() { metadata_fn(a) },
+    init_fn: fn(ctx) { init_fn(a, ctx) },
+    run_fn: async fn(msg) { run_fn(a, msg) },
+    shutdown_fn: fn() { shutdown_fn(a) },
+    status_fn: fn() { status_fn(a) },
+    execute_tool_fn: fn(call) { execute_tool_fn(a, call) },
+  }
+}

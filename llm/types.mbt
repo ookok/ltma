@@ -118,7 +118,7 @@ pub struct TokenUsage {
 }
 
 ///|
-/// LLMProviderHandle — closure-based LLM provider
+/// LLMProviderHandle — synchronous LLM provider (for testing, mock)
 pub struct LLMProviderHandle {
   config_fn : () -> LLMConfig
   chat_fn : (Array[ChatMessage], Array[ChatToolDef]?) -> LLMResponse
@@ -132,6 +132,27 @@ pub fn LLMProviderHandle::config(self : LLMProviderHandle) -> LLMConfig {
 ///|
 pub fn LLMProviderHandle::chat(
   self : LLMProviderHandle,
+  messages : Array[ChatMessage],
+  tools : Array[ChatToolDef]?,
+) -> LLMResponse {
+  (self.chat_fn)(messages, tools)
+}
+
+///|
+/// AsyncLLMProviderHandle — async LLM provider (for real HTTP API calls)
+pub struct AsyncLLMProviderHandle {
+  config_fn : () -> LLMConfig
+  chat_fn : async (Array[ChatMessage], Array[ChatToolDef]?) -> LLMResponse
+}
+
+///|
+pub fn AsyncLLMProviderHandle::config(self : AsyncLLMProviderHandle) -> LLMConfig {
+  (self.config_fn)()
+}
+
+///|
+pub async fn AsyncLLMProviderHandle::chat(
+  self : AsyncLLMProviderHandle,
   messages : Array[ChatMessage],
   tools : Array[ChatToolDef]?,
 ) -> LLMResponse {
