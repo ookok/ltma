@@ -1,6 +1,6 @@
 name = "livingtree/ltma"
 version = "0.1.0"
-readme = "README.mbt.md"
+readme = "README.md"
 repository = "https://github.com/ookok/ltma"
 license = "Apache-2.0"
 keywords = ["ai", "agent", "framework", "llm", "moonbit"]
