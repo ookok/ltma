@@ -5,4 +5,5 @@ import {
   "livingtree/ltma/memory",
   "livingtree/ltma/host",
   "livingtree/ltma/orchestration",
+  "livingtree/ltma/storage",
 }

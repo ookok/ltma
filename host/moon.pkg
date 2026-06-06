@@ -1,4 +1,5 @@
 import {
   "livingtree/ltma/core",
   "livingtree/ltma/pipeline",
+  "livingtree/ltma/protocol",
 }

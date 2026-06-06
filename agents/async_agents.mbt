@@ -94,6 +94,93 @@ pub fn create_async_chat_agent(
 }
 
 ///|
+/// Create an async chat agent with persistent session memory.
+pub fn create_async_chat_agent_with_memory(
+  provider : @llm.AsyncLLMProviderHandle,
+  registry : @tool.ToolRegistry,
+  session : @storage.SessionStore,
+  session_id : String,
+) -> @core.AsyncAgentHandle {
+  let mut messages : Array[@llm.ChatMessage] = []
+  messages.push(
+    @llm.ChatMessage::new(
+      @llm.ChatRole::system(),
+      "You are a helpful AI assistant with access to tools.",
+    ),
+  )
+
+  // Restore session history
+  let history = try { session.get_history(session_id) } catch { _ => [] }
+  for i = 0; i < history.length(); i = i + 1 {
+    let role = if i % 2 == 0 { @llm.ChatRole::user() } else { @llm.ChatRole::assistant() }
+    messages.push(@llm.ChatMessage::new(role, history[i]))
+  }
+
+  let tool_defs : Array[@llm.ChatToolDef] = []
+  let defs = registry.list_defs()
+  for i = 0; i < defs.length(); i = i + 1 {
+    let d = defs[i]
+    tool_defs.push(@llm.ChatToolDef::create(d.name, d.description, d.parameters, d.strict))
+  }
+
+  @core.make_async_handle(
+    (),
+    fn(_) { "async-chat-memory" },
+    fn(_) {
+      @core.AgentMetadata::create(
+        @core.AgentId::create("async-chat-memory", "0.1.0", "livingtree/ltma"),
+        "Async chat agent with SQLite session memory",
+        ["chat", "tools", "async", "memory"],
+        @core.IsolationLevel::in_process(),
+        @core.Target::native(),
+        "0.1.0",
+      )
+    },
+    fn(_, _ctx) { messages = [] },
+    async fn(_, input) -> @core.Message {
+      if !input.is_text() { return @core.Message::text("unsupported") }
+      let user_text = input.get_text()
+      messages.push(@llm.ChatMessage::new(@llm.ChatRole::user(), user_text))
+      try { session.add_message(session_id, "user", user_text) } catch { _ => () }
+
+      let resp = provider.chat(messages, Some(tool_defs))
+      match resp.tool_calls {
+        Some(calls) => {
+          if resp.content != "" {
+            messages.push(@llm.ChatMessage::new(@llm.ChatRole::assistant(), resp.content))
+          }
+          for j = 0; j < calls.length(); j = j + 1 {
+            let core_call = @core.ToolCall::create(calls[j].id, calls[j].name, calls[j].arguments)
+            let result_str = match registry.execute(core_call.name, core_call.arguments) {
+              Some(v) => v
+              None => "error: tool '\{core_call.name}' not found"
+            }
+            messages.push(@llm.ChatMessage::new(@llm.ChatRole::tool(), result_str))
+          }
+          let follow_up = provider.chat(messages, Some(tool_defs))
+          messages.push(@llm.ChatMessage::new(@llm.ChatRole::assistant(), follow_up.content))
+          try { session.add_message(session_id, "assistant", follow_up.content) } catch { _ => () }
+          @core.Message::text(follow_up.content)
+        }
+        None => {
+          messages.push(@llm.ChatMessage::new(@llm.ChatRole::assistant(), resp.content))
+          try { session.add_message(session_id, "assistant", resp.content) } catch { _ => () }
+          @core.Message::text(resp.content)
+        }
+      }
+    },
+    fn(_) { messages = [] },
+    fn(_) { @core.AgentStatus::idle() },
+    fn(_, call) -> @core.ToolResult {
+      let result = registry.execute(call.name, call.arguments)
+      let success = result is Some(_)
+      let output = result.unwrap_or("")
+      @core.ToolResult::create(call.id, success, output, None)
+    },
+  )
+}
+
+///|
 /// Create an async code agent with tool-call loop and workspace support.
 pub fn create_async_code_agent(
   provider : @llm.AsyncLLMProviderHandle,

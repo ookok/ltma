@@ -58,6 +58,29 @@ test "parse_openai_response extracts content" {
 }
 
 ///|
+test "parse_sse_delta extracts content token" {
+  let line = "data: {\"choices\":[{\"delta\":{\"content\":\"Hello\"},\"index\":0}]}"
+  match parse_sse_delta(line) {
+    Some(tok) => assert_eq(tok, "Hello")
+    None => assert_true(false)
+  }
+}
+
+///|
+test "parse_sse_delta handles DONE" {
+  match parse_sse_delta("data: [DONE]") {
+    Some(tok) => assert_eq(tok, "")
+    None => assert_true(false)
+  }
+}
+
+///|
+test "parse_sse_delta ignores non-data lines" {
+  let result = parse_sse_delta(": keep-alive comment")
+  assert_true(result is None)
+}
+
+///|
 test "create_safe_provider wraps inner provider" {
   let inner = create_mock_provider("safe response")
   let safe = create_safe_provider(inner)

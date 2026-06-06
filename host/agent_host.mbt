@@ -6,11 +6,12 @@ pub struct AgentHost {
   catalog : AgentCatalog
   bus : EventBus
   active : Map[String, ActivationResult]
+  a2a : @protocol.A2ARouter
 }
 
 ///|
 pub fn AgentHost::new() -> AgentHost {
-  { catalog: AgentCatalog::new(), bus: EventBus::new(), active: Map([]) }
+  { catalog: AgentCatalog::new(), bus: EventBus::new(), active: Map([]), a2a: @protocol.A2ARouter::new() }
 }
 
 ///|
@@ -79,4 +80,29 @@ pub fn AgentHost::list_registered(
   self : AgentHost,
 ) -> Array[@core.AgentMetadata] {
   self.catalog.list()
+}
+
+///|
+pub fn AgentHost::register_a2a(
+  self : AgentHost,
+  agent_name : String,
+  handler : @protocol.A2AEventHandler,
+) -> Unit {
+  self.a2a.register(agent_name, handler)
+}
+
+///|
+pub fn AgentHost::send_a2a(
+  self : AgentHost,
+  msg : @protocol.A2AMessage,
+) -> @protocol.A2AMessage? {
+  self.a2a.send(msg)
+}
+
+///|
+pub fn AgentHost::a2a_broadcast(
+  self : AgentHost,
+  msg : @protocol.A2AMessage,
+) -> Array[@protocol.A2AMessage] {
+  self.a2a.broadcast(msg)
 }

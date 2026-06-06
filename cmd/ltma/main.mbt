@@ -17,7 +17,7 @@ fn main {
 }
 
 ///|
-/// Run an async chat with a real LLM provider.
+/// Run an async chat with session memory.
 fn cmd_async_chat(provider_str : String, model_str : String, api_key : String) -> Unit {
   println("Connecting to \{provider_str} (model: \{if model_str != "" { model_str } else { "default" }})...")
   @async.run_async_main(async fn() {
@@ -25,7 +25,13 @@ fn cmd_async_chat(provider_str : String, model_str : String, api_key : String) -
       Some(provider) => {
         let registry = @tool.ToolRegistry::new()
         @builtin.register_builtins(registry)
-        let agent = @agents.create_async_chat_agent(provider, registry)
+
+        let session = try { Some(@storage.SessionStore::open("ltma_sessions.db")) } catch { _ => None }
+        let agent = match session {
+          Some(s) => @agents.create_async_chat_agent_with_memory(provider, registry, s, "default")
+          None => @agents.create_async_chat_agent(provider, registry)
+        }
+
         let ctx = @core.AgentContext::new(
           @core.AgentId::create("async-chat", "0.1.0", "livingtree/ltma"),
         )
