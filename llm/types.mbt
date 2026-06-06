@@ -34,6 +34,54 @@ pub fn LLMConfig::openai_default(api_key : String) -> LLMConfig {
 }
 
 ///|
+/// Moonshot / Kimi default config
+pub fn LLMConfig::moonshot_default(api_key : String) -> LLMConfig {
+  {
+    api_key,
+    model: "moonshot-v1-8k",
+    api_url: "https://api.moonshot.cn/v1/chat/completions",
+    max_tokens: 4096,
+    temperature: 0.7,
+  }
+}
+
+///|
+/// Qwen (Alibaba Cloud) default config
+pub fn LLMConfig::qwen_default(api_key : String) -> LLMConfig {
+  {
+    api_key,
+    model: "qwen-plus",
+    api_url: "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+    max_tokens: 4096,
+    temperature: 0.7,
+  }
+}
+
+///|
+/// Baidu ERNIE default config
+pub fn LLMConfig::baidu_default(api_key : String) -> LLMConfig {
+  {
+    api_key,
+    model: "ernie-4.0-8k",
+    api_url: "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro",
+    max_tokens: 4096,
+    temperature: 0.7,
+  }
+}
+
+///|
+/// iFlyTek Spark default config
+pub fn LLMConfig::spark_default(api_key : String) -> LLMConfig {
+  {
+    api_key,
+    model: "spark-4.0",
+    api_url: "https://spark-api.xf-yun.com/v4.0/chat",
+    max_tokens: 4096,
+    temperature: 0.7,
+  }
+}
+
+///|
 pub struct ChatRole {
   code : Int
 }

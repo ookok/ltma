@@ -11,35 +11,46 @@ fn main {
     Command::List => cmd_list()
     Command::Run(agent, msg) => cmd_run(agent, msg)
     Command::Chat => cmd_chat()
+    Command::AsyncChat(provider_str, api_key) => cmd_async_chat(provider_str, api_key)
   }
 }
 
 ///|
-/// Run the async demo via the async runtime.
-fn run_async_demo() -> Unit {
-  @async.run_async_main(async_fn_demo)
+/// Parse provider kind string.
+fn parse_provider(s : String) -> @llm.ProviderKind {
+  let lower = s.to_lower()
+  if lower == "deepseek" { @llm.ProviderKind::deepseek() }
+  else if lower == "moonshot" || lower == "kimi" { @llm.ProviderKind::moonshot() }
+  else if lower == "qwen" || lower == "tongyi" { @llm.ProviderKind::qwen() }
+  else if lower == "baidu" || lower == "ernie" { @llm.ProviderKind::baidu() }
+  else if lower == "spark" || lower == "xfyun" { @llm.ProviderKind::spark() }
+  else { @llm.ProviderKind::openai() }
 }
 
 ///|
-async fn async_fn_demo() -> Unit {
-  println("\n=== Async LLM Provider Demo ===")
-
-  let config = @llm.LLMConfig::deepseek_default("sk-your-key-here")
-  let provider = @llm.create_async_openai_provider(config)
-  let registry = @tool.ToolRegistry::new()
-  @builtin.register_builtins(registry)
-
-  let agent = @agents.create_async_chat_agent(provider, registry)
-  let ctx = @core.AgentContext::new(
-    @core.AgentId::create("async-chat", "0.1.0", "livingtree/ltma"),
-  )
-  agent.init(ctx)
-  let resp = agent.run(@core.Message::text("Hello! What can you do?"))
-  if resp.is_text() {
-    println("Agent: \{resp.get_text()}")
-  }
-  agent.shutdown()
-  println("=== Async Demo Complete ===")
+/// Run an async chat with a real LLM provider.
+fn cmd_async_chat(provider_str : String, api_key : String) -> Unit {
+  let kind = parse_provider(provider_str)
+  let provider_name = @llm.provider_name(kind)
+  println("Connecting to \{provider_name}...")
+  @async.run_async_main(async fn() {
+    let config = @llm.default_config(kind, api_key)
+    let provider = @llm.create_async_openai_provider(config)
+    let registry = @tool.ToolRegistry::new()
+    @builtin.register_builtins(registry)
+    let agent = @agents.create_async_chat_agent(provider, registry)
+    let ctx = @core.AgentContext::new(
+      @core.AgentId::create("async-chat", "0.1.0", "livingtree/ltma"),
+    )
+    agent.init(ctx)
+    let resp = agent.run(@core.Message::text("Hello! What can you do?"))
+    if resp.is_text() {
+      println("\nAgent: \{resp.get_text()}")
+    } else {
+      println("\nAgent: <non-text response>")
+    }
+    agent.shutdown()
+  })
 }
 
 ///|
