@@ -13,5 +13,4 @@ import {
   "moonbitlang/x@0.4.45",
   "myfreess/sqlite3@0.1.1",
   "trkbt10/subprocess@0.2.0",
-  "trkbt10/vcdb@0.3.0",
 }
