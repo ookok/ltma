@@ -18,4 +18,5 @@ import {
   "mizchi/tui@0.10.0",
   "moonbitlang/async@0.19.2",
   "moonbitlang/x@0.4.45",
+  "myfreess/sqlite3@0.1.1",
 }
