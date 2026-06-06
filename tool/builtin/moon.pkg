@@ -3,6 +3,7 @@ import {
   "livingtree/ltma/tool",
   "moonbitlang/x/fs" @xfs,
   "moonbitlang/core/debug",
+  "moonbitlang/core/string",
 }
 
 options(
