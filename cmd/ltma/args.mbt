@@ -6,8 +6,9 @@ pub enum Command {
   Demo
   Run(String, String)
   Chat
-  AsyncChat(String, String)
-  List
+  AsyncChat(String, String, String)
+  ListAgents
+  ListProviders
   Help
   Version
 }
@@ -30,12 +31,23 @@ pub fn Args::parse() -> Args {
       { command: Command::Run(agent, msg) }
     } else if cmd == "chat" {
       { command: Command::Chat }
-    } else if cmd == "async" && raw.length() >= 3 {
-      let provider = raw[2]
-      let api_key = if raw.length() >= 4 { raw[3] } else { "" }
-      { command: Command::AsyncChat(provider, api_key) }
+    } else if cmd == "async" {
+      // ltma async <provider> [model] <api_key>
+      if raw.length() >= 4 {
+        let provider = raw[2]
+        // Check if 3rd arg looks like a model (contains letters) or an api key
+        if raw.length() >= 5 {
+          { command: Command::AsyncChat(provider, raw[3], raw[4]) }
+        } else {
+          { command: Command::AsyncChat(provider, "", raw[3]) }
+        }
+      } else {
+        { command: Command::Help }
+      }
     } else if cmd == "list" {
-      { command: Command::List }
+      { command: Command::ListAgents }
+    } else if cmd == "list-providers" || cmd == "providers" {
+      { command: Command::ListProviders }
     } else if cmd == "--version" || cmd == "-v" {
       { command: Command::Version }
     } else if cmd == "--help" || cmd == "-h" || cmd == "help" {
@@ -53,18 +65,18 @@ pub fn print_help() -> Unit {
   println("Usage: ltma [command] [args]")
   println("")
   println("Commands:")
-  println("  run <agent> [message]        Run an agent with an optional message")
-  println("  chat                         Start interactive chat (TUI)")
-  println("  async <provider> <api_key>   Async chat with real LLM API")
-  println("  list                         List registered agents")
-  println("  help, --help, -h             Show this help")
-  println("  --version, -v                Show version")
-  println("")
-  println("Providers: deepseek, moonshot, qwen, baidu, spark, openai")
+  println("  run <agent> [message]            Run an agent with an optional message")
+  println("  chat                             Start interactive chat (TUI)")
+  println("  async <provider> [model] <key>   Async chat with real LLM API")
+  println("  list                             List registered agents")
+  println("  providers                        List all supported LLM providers")
+  println("  help, --help, -h                 Show this help")
+  println("  --version, -v                    Show version")
   println("")
   println("Examples:")
   println("  ltma async deepseek sk-xxxxx")
-  println("  ltma async openai sk-proj-xxxxx")
+  println("  ltma async zhipu glm-4-flash sk-xxxxx")
+  println("  ltma async siliconflow Pro/deepseek-ai/DeepSeek-V3 sk-xxxxx")
   println("")
   println("Without arguments, runs the full pipeline demo.")
 }
