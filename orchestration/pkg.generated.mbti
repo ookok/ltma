@@ -1,0 +1,66 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "livingtree/ltma/orchestration"
+
+import {
+  "livingtree/ltma/host",
+  "livingtree/ltma/llm",
+}
+
+// Values
+pub fn execute_workflow(Workflow, @host.AgentHost, String, AgentRouter?) -> Array[String]
+
+// Errors
+
+// Types and methods
+pub struct AgentRegistration {
+  agent_name : String
+  capabilities : Array[String]
+}
+
+pub struct AgentRouter {
+  agents : Array[AgentRegistration]
+}
+pub fn AgentRouter::list_agents(Self) -> Array[AgentRegistration]
+pub fn AgentRouter::new() -> Self
+pub fn AgentRouter::register(Self, String, Array[String]) -> Unit
+pub fn AgentRouter::route(Self, String) -> String?
+
+pub struct HandoffDef {
+  from : String
+  to : String
+  reason : String
+}
+pub fn HandoffDef::new(String, String, String) -> Self
+
+pub struct Planner {
+  router : AgentRouter
+  llm_provider : @llm.LLMProviderHandle?
+}
+pub fn Planner::new(AgentRouter) -> Self
+pub fn Planner::plan(Self, String) -> Workflow
+pub fn Planner::plan_with_llm(Self, String) -> Workflow
+pub fn Planner::with_llm(Self, @llm.LLMProviderHandle) -> Self
+
+pub struct StepDef {
+  kind : Int
+  name : String?
+  handoff : HandoffDef?
+  parallel_names : Array[String]?
+  route_task : String?
+}
+pub fn StepDef::agent(String) -> Self
+pub fn StepDef::handoff(HandoffDef) -> Self
+pub fn StepDef::parallel(Array[String]) -> Self
+pub fn StepDef::route(String) -> Self
+
+pub struct Workflow {
+  steps : Array[StepDef]
+}
+pub fn Workflow::add(Self, StepDef) -> Unit
+pub fn Workflow::count(Self) -> Int
+pub fn Workflow::new() -> Self
+
+// Type aliases
+
+// Traits
+

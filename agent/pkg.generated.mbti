@@ -1,0 +1,30 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "livingtree/ltma/agent"
+
+import {
+  "livingtree/ltma/core",
+}
+
+// Values
+pub fn create_metadata(String, String, Array[String]) -> @core.AgentMetadata
+
+// Errors
+
+// Types and methods
+pub struct AgentBase {
+  metadata : @core.AgentMetadata
+  mut st : @core.AgentStatus
+}
+pub fn AgentBase::execute_tool(Self, @core.ToolCall) -> @core.ToolResult
+pub fn AgentBase::id(Self) -> String
+pub fn AgentBase::initialize(Self, @core.AgentContext) -> Unit
+pub fn AgentBase::metadata(Self) -> @core.AgentMetadata
+pub fn AgentBase::new(@core.AgentMetadata) -> Self
+pub fn AgentBase::run(Self, @core.Message) -> @core.Message
+pub fn AgentBase::shutdown(Self) -> Unit
+pub fn AgentBase::status(Self) -> @core.AgentStatus
+
+// Type aliases
+
+// Traits
+

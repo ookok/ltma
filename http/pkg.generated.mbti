@@ -1,0 +1,38 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "livingtree/ltma/http"
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct HttpMethod {
+  code : Int
+}
+pub fn HttpMethod::get() -> Self
+pub fn HttpMethod::post() -> Self
+
+pub struct HttpRequest {
+  http_method : HttpMethod
+  url : String
+  headers : Map[String, String]
+  body : String?
+}
+pub fn HttpRequest::post(String, String, String) -> Self
+
+pub struct HttpResponse {
+  status : Int
+  body : String
+}
+pub fn HttpResponse::new(Int, String) -> Self
+
+pub struct MockHttpClient {
+  resp : HttpResponse
+}
+pub fn MockHttpClient::new(HttpResponse) -> Self
+pub fn MockHttpClient::request(Self, HttpRequest) -> HttpResponse
+
+// Type aliases
+
+// Traits
+

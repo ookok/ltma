@@ -1,0 +1,57 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "livingtree/ltma/tool"
+
+import {
+  "livingtree/ltma/core",
+}
+
+// Values
+pub fn execute_with_permissions(ToolRegistry, PermissionMatrix, String, String, String) -> String?
+
+// Errors
+
+// Types and methods
+pub struct AgentIdentity {
+  name : String
+  pkg : String
+}
+pub fn AgentIdentity::new(String, String) -> Self
+
+pub struct PermissionMatrix {
+  mut default_policy : ToolPermission
+  rules : Map[String, Map[String, ToolPermission]]
+}
+pub fn PermissionMatrix::allow(Self, String, String) -> Unit
+pub fn PermissionMatrix::allowed_tools(Self, String) -> Array[String]
+pub fn PermissionMatrix::check(Self, String, String) -> Bool
+pub fn PermissionMatrix::clear_rule(Self, String, String) -> Unit
+pub fn PermissionMatrix::count(Self) -> Int
+pub fn PermissionMatrix::denied_tools(Self, String) -> Array[String]
+pub fn PermissionMatrix::deny(Self, String, String) -> Unit
+pub fn PermissionMatrix::new(ToolPermission) -> Self
+pub fn PermissionMatrix::set_default(Self, ToolPermission) -> Unit
+
+pub struct ToolEntry {
+  def : @core.ToolDefinition
+  execute_fn : (String) -> String
+}
+
+pub enum ToolPermission {
+  Allowed
+  Denied
+}
+
+pub struct ToolRegistry {
+  entries : Map[String, ToolEntry]
+}
+pub fn ToolRegistry::count(Self) -> Int
+pub fn ToolRegistry::execute(Self, String, String) -> String?
+pub fn ToolRegistry::list_defs(Self) -> Array[@core.ToolDefinition]
+pub fn ToolRegistry::new() -> Self
+pub fn ToolRegistry::register(Self, @core.ToolDefinition, (String) -> String) -> Unit
+pub fn ToolRegistry::resolve(Self, String) -> ToolEntry?
+
+// Type aliases
+
+// Traits
+

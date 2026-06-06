@@ -1,0 +1,29 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "livingtree/ltma/cmd/ltma"
+
+import {
+  "livingtree/ltma/core",
+}
+
+// Values
+pub fn echo_handle() -> @core.AgentHandle
+
+// Errors
+
+// Types and methods
+pub struct Args {
+  command : Command
+  message : String
+}
+pub fn Args::parse() -> Self
+
+pub enum Command {
+  List
+  Run(String)
+  Help
+}
+
+// Type aliases
+
+// Traits
+

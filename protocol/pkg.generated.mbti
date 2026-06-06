@@ -1,0 +1,80 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "livingtree/ltma/protocol"
+
+// Values
+pub fn create_echo_handler() -> (A2AMessage) -> A2AMessage?
+
+pub fn decode_message(String) -> A2AMessage?
+
+pub fn encode_handoff_request(HandoffRequest) -> String
+
+pub fn encode_handoff_response(HandoffResponse) -> String
+
+pub fn encode_message(A2AMessage) -> String
+
+pub fn perform_handoff(A2ARouter, HandoffRequest) -> HandoffResponse?
+
+// Errors
+
+// Types and methods
+pub struct A2AMessage {
+  id : String
+  from_agent : String
+  to_agent : String
+  kind_code : Int
+  payload : String
+  correlation_id : String?
+  timestamp : Int64
+}
+pub fn A2AMessage::create(String, String, String, A2AMessageKind, String, String?, Int64) -> Self
+pub fn A2AMessage::kind(Self) -> A2AMessageKind
+
+pub enum A2AMessageKind {
+  Request
+  Response
+  Handoff
+  Broadcast
+}
+pub fn A2AMessageKind::broadcast() -> Self
+pub fn A2AMessageKind::handoff() -> Self
+pub fn A2AMessageKind::request() -> Self
+pub fn A2AMessageKind::response() -> Self
+
+pub struct A2AProtocol {
+  major : Int
+  minor : Int
+}
+pub fn A2AProtocol::current() -> Self
+pub fn A2AProtocol::to_string(Self) -> String
+
+pub struct A2ARouter {
+  handlers : Map[String, (A2AMessage) -> A2AMessage?]
+}
+pub fn A2ARouter::broadcast(Self, A2AMessage) -> Array[A2AMessage]
+pub fn A2ARouter::new() -> Self
+pub fn A2ARouter::register(Self, String, (A2AMessage) -> A2AMessage?) -> Unit
+pub fn A2ARouter::send(Self, A2AMessage) -> A2AMessage?
+pub fn A2ARouter::unregister(Self, String) -> Unit
+
+pub struct HandoffRequest {
+  from_agent : String
+  to_agent : String
+  task : String
+  context_keys : Array[String]
+  context_vals : Array[String]
+}
+pub fn HandoffRequest::get_context(Self) -> Map[String, String]
+pub fn HandoffRequest::new(String, String, String, Map[String, String]) -> Self
+
+pub struct HandoffResponse {
+  accepted : Bool
+  result : String?
+  error : String?
+}
+pub fn HandoffResponse::new(Bool, String?, String?) -> Self
+
+// Type aliases
+pub type A2AEventHandler = (A2AMessage) -> A2AMessage?
+
+// Traits
+

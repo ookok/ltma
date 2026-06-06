@@ -1,0 +1,76 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "livingtree/ltma/host"
+
+import {
+  "livingtree/ltma/core",
+  "livingtree/ltma/pipeline",
+}
+
+// Values
+pub fn activate_in_process(() -> @core.AgentHandle, @core.AgentId) -> ActivationResult
+
+pub fn deactivate(ActivationResult) -> Unit
+
+// Errors
+
+// Types and methods
+pub struct ActivationResult {
+  adapter : @pipeline.HostAdapter
+  strategy : ActivationStrategy
+}
+pub fn ActivationResult::new(@pipeline.HostAdapter, ActivationStrategy) -> Self
+
+pub enum ActivationStrategy {
+  Singleton
+  PerCall
+}
+
+pub struct AgentCatalog {
+  entries : Map[String, AgentRegistration]
+}
+pub fn AgentCatalog::contains(Self, @core.AgentId) -> Bool
+pub fn AgentCatalog::count(Self) -> Int
+pub fn AgentCatalog::list(Self) -> Array[@core.AgentMetadata]
+pub fn AgentCatalog::new() -> Self
+pub fn AgentCatalog::register(Self, @core.AgentMetadata, () -> @core.AgentHandle) -> Unit
+pub fn AgentCatalog::resolve(Self, @core.AgentId) -> AgentRegistration?
+
+pub struct AgentHost {
+  catalog : AgentCatalog
+  bus : EventBus
+  active : Map[String, ActivationResult]
+}
+pub fn AgentHost::activate(Self, @core.AgentId) -> @pipeline.HostAdapter?
+pub fn AgentHost::deactivate(Self, @core.AgentId) -> Unit
+pub fn AgentHost::list_registered(Self) -> Array[@core.AgentMetadata]
+pub fn AgentHost::new() -> Self
+pub fn AgentHost::register(Self, @core.AgentMetadata, () -> @core.AgentHandle) -> Unit
+pub fn AgentHost::send(Self, @core.AgentId, @core.Message) -> @core.Message?
+
+pub struct AgentRegistration {
+  metadata : @core.AgentMetadata
+  factory : () -> @core.AgentHandle
+}
+
+pub struct EventBus {
+  handlers : Array[(HostEvent) -> Unit]
+}
+pub fn EventBus::new() -> Self
+pub fn EventBus::publish(Self, HostEvent) -> Unit
+pub fn EventBus::subscribe(Self, (HostEvent) -> Unit) -> Unit
+
+pub enum HostEvent {
+  AgentRegistered(@core.AgentId)
+  AgentUnregistered(@core.AgentId)
+  AgentActivated(@core.AgentId)
+  AgentDeactivated(@core.AgentId)
+  AgentMessageSent(@core.AgentId, @core.Message)
+  AgentMessageReceived(@core.AgentId, @core.Message)
+  System(String)
+}
+
+// Type aliases
+pub type EventHandler = (HostEvent) -> Unit
+
+// Traits
+

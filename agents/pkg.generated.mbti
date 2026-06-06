@@ -1,0 +1,33 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "livingtree/ltma/agents"
+
+import {
+  "livingtree/ltma/core",
+  "livingtree/ltma/host",
+  "livingtree/ltma/llm",
+  "livingtree/ltma/memory",
+  "livingtree/ltma/orchestration",
+  "livingtree/ltma/tool",
+}
+
+// Values
+pub fn create_chat_agent_handle(@llm.LLMProviderHandle, @tool.ToolRegistry) -> @core.AgentHandle
+
+pub fn create_chat_agent_handle_with_memory(@llm.LLMProviderHandle, @tool.ToolRegistry, @memory.SessionManager, String) -> @core.AgentHandle
+
+pub fn create_code_agent_handle(@llm.LLMProviderHandle, @tool.ToolRegistry, String) -> @core.AgentHandle
+
+pub fn create_knowledge_agent_handle(@llm.LLMProviderHandle, @tool.ToolRegistry, @memory.KnowledgeGraph, @memory.KeywordIndex) -> @core.AgentHandle
+
+pub fn create_orchestrator_agent_handle(@llm.LLMProviderHandle, @tool.ToolRegistry, @host.AgentHost, @orchestration.AgentRouter) -> @core.AgentHandle
+
+pub fn create_research_agent_handle(@llm.LLMProviderHandle, @tool.ToolRegistry, @memory.KnowledgeGraph, @memory.KeywordIndex) -> @core.AgentHandle
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

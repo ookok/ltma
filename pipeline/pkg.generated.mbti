@@ -1,0 +1,40 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "livingtree/ltma/pipeline"
+
+import {
+  "livingtree/ltma/core",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct HostAdapter {
+  agent_id : @core.AgentId
+  handle : @core.AgentHandle
+  meta : @core.AgentMetadata
+  mut st : @core.AgentStatus
+}
+pub fn HostAdapter::agent_id(Self) -> @core.AgentId
+pub fn HostAdapter::call(Self, @core.Message) -> @core.Message
+pub fn HostAdapter::initialize(Self, @core.AgentContext) -> Unit
+pub fn HostAdapter::metadata(Self) -> @core.AgentMetadata
+pub fn HostAdapter::new(@core.AgentHandle) -> Self
+pub fn HostAdapter::new_with_meta(@core.AgentHandle, @core.AgentMetadata) -> Self
+pub fn HostAdapter::shutdown(Self) -> Unit
+pub fn HostAdapter::status(Self) -> @core.AgentStatus
+
+pub struct LifecycleManager {
+  mut st : @core.AgentStatus
+  mut last_error : String?
+}
+pub fn LifecycleManager::new() -> Self
+pub fn LifecycleManager::reset(Self) -> Unit
+pub fn LifecycleManager::status(Self) -> @core.AgentStatus
+pub fn LifecycleManager::transition(Self, @core.AgentStatus) -> Unit
+
+// Type aliases
+
+// Traits
+

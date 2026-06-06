@@ -1,0 +1,141 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "livingtree/ltma/memory"
+
+// Values
+pub fn create_memory_handle(InMemoryStore) -> MemoryStoreHandle
+
+pub fn create_mock_embedding_provider(Int) -> EmbeddingProviderHandle
+
+// Errors
+
+// Types and methods
+pub struct ContextCompactor {
+  max_messages : Int
+}
+pub fn ContextCompactor::compact(Self, Array[String]) -> Array[String]
+pub fn ContextCompactor::new(Int) -> Self
+pub fn ContextCompactor::summarize(Self, Array[String]) -> String
+
+pub struct Document {
+  id : String
+  title : String
+  content : String
+}
+pub fn Document::new(String, String, String) -> Self
+
+pub struct EmbeddingProviderHandle {
+  embed_fn : (String) -> Array[Double]
+}
+pub fn EmbeddingProviderHandle::embed(Self, String) -> Array[Double]
+
+pub struct Entity {
+  id : String
+  name : String
+  entity_type : String
+  metadata : String
+}
+pub fn Entity::new(String, String, String, String) -> Self
+
+pub struct InMemoryStore {
+  mut entries : Map[String, MemoryEntry]
+  mut counter : Int64
+}
+pub fn InMemoryStore::clear(Self) -> Unit
+pub fn InMemoryStore::list(Self) -> Array[MemoryEntry]
+pub fn InMemoryStore::new() -> Self
+pub fn InMemoryStore::remove(Self, String) -> Unit
+pub fn InMemoryStore::retrieve(Self, String) -> String?
+pub fn InMemoryStore::store(Self, String, String) -> Unit
+
+pub struct KeywordIndex {
+  docs : Map[String, Document]
+  index : Map[String, Array[String]]
+}
+pub fn KeywordIndex::add_document(Self, Document) -> Unit
+pub fn KeywordIndex::count(Self) -> Int
+pub fn KeywordIndex::new() -> Self
+pub fn KeywordIndex::search(Self, String) -> Array[(String, Int, Document)]
+
+pub struct KnowledgeGraph {
+  entities : Map[String, Entity]
+  relations : Array[Relation]
+}
+pub fn KnowledgeGraph::add_entity(Self, Entity) -> Unit
+pub fn KnowledgeGraph::add_relation(Self, Relation) -> Unit
+pub fn KnowledgeGraph::count(Self) -> (Int, Int)
+pub fn KnowledgeGraph::get_entity(Self, String) -> Entity?
+pub fn KnowledgeGraph::new() -> Self
+pub fn KnowledgeGraph::query_by_type(Self, String) -> Array[Entity]
+pub fn KnowledgeGraph::query_relations(Self, String) -> Array[Relation]
+pub fn KnowledgeGraph::remove_entity(Self, String) -> Unit
+pub fn KnowledgeGraph::search_entities(Self, String) -> Array[Entity]
+
+pub struct MemoryEntry {
+  key : String
+  value : String
+  created_at : Int64
+}
+
+pub struct MemoryStoreHandle {
+  store_fn : (String, String) -> Unit
+  retrieve_fn : (String) -> String?
+  remove_fn : (String) -> Unit
+  list_fn : () -> Array[MemoryEntry]
+  clear_fn : () -> Unit
+}
+pub fn MemoryStoreHandle::clear(Self) -> Unit
+pub fn MemoryStoreHandle::list(Self) -> Array[MemoryEntry]
+pub fn MemoryStoreHandle::remove(Self, String) -> Unit
+pub fn MemoryStoreHandle::retrieve(Self, String) -> String?
+pub fn MemoryStoreHandle::store(Self, String, String) -> Unit
+
+pub struct Relation {
+  subject : String
+  predicate : String
+  object : String
+}
+pub fn Relation::new(String, String, String) -> Self
+
+pub struct SessionManager {
+  sessions : Map[String, Array[String]]
+}
+pub fn SessionManager::add_message(Self, String, String) -> Unit
+pub fn SessionManager::clear(Self, String) -> Unit
+pub fn SessionManager::get_history(Self, String) -> Array[String]
+pub fn SessionManager::get_or_create(Self, String) -> Array[String]
+pub fn SessionManager::list_sessions(Self) -> Array[String]
+pub fn SessionManager::new() -> Self
+
+pub struct VectorEntry {
+  id : String
+  text : String
+  embedding : Array[Double]
+  metadata : Map[String, String]
+}
+pub fn VectorEntry::new(String, String, Array[Double], Map[String, String]) -> Self
+
+pub struct VectorSearchResult {
+  id : String
+  score : Double
+  text : String
+  metadata : Map[String, String]
+}
+pub fn VectorSearchResult::new(String, Double, String, Map[String, String]) -> Self
+
+pub struct VectorStore {
+  mut entries : Map[String, VectorEntry]
+  dims : Int
+}
+pub fn VectorStore::add(Self, VectorEntry) -> Unit
+pub fn VectorStore::add_text(Self, String, String, Map[String, String], EmbeddingProviderHandle) -> Unit
+pub fn VectorStore::clear(Self) -> Unit
+pub fn VectorStore::count(Self) -> Int
+pub fn VectorStore::get(Self, String) -> VectorEntry?
+pub fn VectorStore::new(Int) -> Self
+pub fn VectorStore::remove(Self, String) -> Unit
+pub fn VectorStore::search(Self, String, Int, EmbeddingProviderHandle) -> Array[VectorSearchResult]
+
+// Type aliases
+
+// Traits
+

@@ -1,0 +1,43 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "livingtree/ltma/tool/builtin"
+
+import {
+  "livingtree/ltma/core",
+  "livingtree/ltma/tool",
+}
+
+// Values
+pub fn edit_file(String, String, String) -> String
+
+pub fn edit_tool_def() -> @core.ToolDefinition
+
+pub fn execute_shell(String) -> String
+
+pub fn list_directory(String) -> String
+
+pub fn ls_tool_def() -> @core.ToolDefinition
+
+pub fn path_stat(String) -> String
+
+pub fn read_file(String) -> String
+
+pub fn read_tool_def() -> @core.ToolDefinition
+
+pub fn register_builtins(@tool.ToolRegistry) -> Unit
+
+pub fn shell_tool_def() -> @core.ToolDefinition
+
+pub fn stat_tool_def() -> @core.ToolDefinition
+
+pub fn write_file(String, String) -> String
+
+pub fn write_tool_def() -> @core.ToolDefinition
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

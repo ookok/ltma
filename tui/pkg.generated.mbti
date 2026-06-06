@@ -1,0 +1,18 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "livingtree/ltma/tui"
+
+import {
+  "livingtree/ltma/host",
+}
+
+// Values
+pub fn start_chat_tui(@host.AgentHost) -> Unit
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

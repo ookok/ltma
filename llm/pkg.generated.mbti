@@ -1,0 +1,72 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "livingtree/ltma/llm"
+
+// Values
+pub async fn call_deepseek_api(LLMConfig, Array[ChatMessage]) -> String
+
+pub fn create_mock_provider(String) -> LLMProviderHandle
+
+// Errors
+
+// Types and methods
+pub struct ChatMessage {
+  role : ChatRole
+  content : String
+}
+pub fn ChatMessage::new(ChatRole, String) -> Self
+
+pub struct ChatRole {
+  code : Int
+}
+pub fn ChatRole::assistant() -> Self
+pub fn ChatRole::system() -> Self
+pub fn ChatRole::tool() -> Self
+pub fn ChatRole::user() -> Self
+
+pub struct ChatToolCall {
+  id : String
+  name : String
+  arguments : String
+}
+pub fn ChatToolCall::create(String, String, String) -> Self
+
+pub struct ChatToolDef {
+  name : String
+  description : String
+  parameters : String
+  strict : Bool
+}
+pub fn ChatToolDef::create(String, String, String, Bool) -> Self
+
+pub struct LLMConfig {
+  api_key : String
+  model : String
+  api_url : String
+  max_tokens : Int
+  temperature : Double
+}
+pub fn LLMConfig::deepseek_default(String) -> Self
+
+pub struct LLMProviderHandle {
+  config_fn : () -> LLMConfig
+  chat_fn : (Array[ChatMessage], Array[ChatToolDef]?) -> LLMResponse
+}
+pub fn LLMProviderHandle::chat(Self, Array[ChatMessage], Array[ChatToolDef]?) -> LLMResponse
+pub fn LLMProviderHandle::config(Self) -> LLMConfig
+
+pub struct LLMResponse {
+  content : String
+  tool_calls : Array[ChatToolCall]?
+  finish_reason : String
+}
+
+pub struct TokenUsage {
+  prompt_tokens : Int
+  completion_tokens : Int
+  total_tokens : Int
+}
+
+// Type aliases
+
+// Traits
+

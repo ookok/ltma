@@ -1,0 +1,140 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "livingtree/ltma/core"
+
+// Values
+pub fn[T] make_handle(T, (T) -> String, (T) -> AgentMetadata, (T, AgentContext) -> Unit, (T, Message) -> Message, (T) -> Unit, (T) -> AgentStatus, (T, ToolCall) -> ToolResult) -> AgentHandle
+
+// Errors
+
+// Types and methods
+pub struct AgentContext {
+  agent_id : AgentId
+  host_name : String
+  session_id : String
+  params : Map[String, String]
+}
+pub fn AgentContext::new(AgentId) -> Self
+
+pub struct AgentHandle {
+  id_fn : () -> String
+  metadata_fn : () -> AgentMetadata
+  init_fn : (AgentContext) -> Unit
+  run_fn : (Message) -> Message
+  shutdown_fn : () -> Unit
+  status_fn : () -> AgentStatus
+  execute_tool_fn : (ToolCall) -> ToolResult
+}
+pub fn AgentHandle::execute_tool(Self, ToolCall) -> ToolResult
+pub fn AgentHandle::id(Self) -> String
+pub fn AgentHandle::init(Self, AgentContext) -> Unit
+pub fn AgentHandle::metadata(Self) -> AgentMetadata
+pub fn AgentHandle::run(Self, Message) -> Message
+pub fn AgentHandle::shutdown(Self) -> Unit
+pub fn AgentHandle::status(Self) -> AgentStatus
+
+pub struct AgentId {
+  name : String
+  version : String
+  module_name : String
+}
+pub fn AgentId::create(String, String, String) -> Self
+pub fn AgentId::to_string(Self) -> String
+
+pub struct AgentMetadata {
+  id : AgentId
+  description : String
+  capabilities : Array[String]
+  isolation : IsolationLevel
+  target : Target
+  version : String
+}
+pub fn AgentMetadata::create(AgentId, String, Array[String], IsolationLevel, Target, String) -> Self
+
+pub struct AgentStatus {
+  code : Int
+  message : String?
+}
+pub fn AgentStatus::completed() -> Self
+pub fn AgentStatus::discovered() -> Self
+pub fn AgentStatus::error_st(String) -> Self
+pub fn AgentStatus::idle() -> Self
+pub fn AgentStatus::initializing() -> Self
+pub fn AgentStatus::is_error(Self) -> Bool
+pub fn AgentStatus::is_idle(Self) -> Bool
+pub fn AgentStatus::is_new(Self) -> Bool
+pub fn AgentStatus::is_shutdown(Self) -> Bool
+pub fn AgentStatus::new_st() -> Self
+pub fn AgentStatus::running() -> Self
+pub fn AgentStatus::shutdown_st() -> Self
+
+pub struct IsolationLevel {
+  code : Int
+}
+pub fn IsolationLevel::in_process() -> Self
+pub fn IsolationLevel::process() -> Self
+pub fn IsolationLevel::wasm_sandbox() -> Self
+
+pub struct Message {
+  kind : Int
+  text_val : String?
+  sys_kind : Int?
+  sys_status : AgentStatus?
+}
+pub fn Message::get_text(Self) -> String
+pub fn Message::is_system_shutdown(Self) -> Bool
+pub fn Message::is_system_status_request(Self) -> Bool
+pub fn Message::is_text(Self) -> Bool
+pub fn Message::system_shutdown() -> Self
+pub fn Message::system_status_request() -> Self
+pub fn Message::system_status_response(AgentStatus) -> Self
+pub fn Message::text(String) -> Self
+
+pub enum PipelineError {
+  AgentNotFound(String)
+  ActivationFailed(String)
+  IsolationError(String)
+  Timeout(String)
+  InvalidState(String)
+  Unknown(String)
+}
+
+pub struct SearchResult {
+  key : String
+  score : Double
+  content : String
+}
+
+pub struct Target {
+  code : Int
+}
+pub fn Target::js() -> Self
+pub fn Target::native() -> Self
+pub fn Target::wasm() -> Self
+
+pub struct ToolCall {
+  id : String
+  name : String
+  arguments : String
+}
+pub fn ToolCall::create(String, String, String) -> Self
+
+pub struct ToolDefinition {
+  name : String
+  description : String
+  parameters : String
+  strict : Bool
+}
+pub fn ToolDefinition::create(String, String, String, Bool) -> Self
+
+pub struct ToolResult {
+  id : String
+  success : Bool
+  output : String
+  error : String?
+}
+pub fn ToolResult::create(String, Bool, String, String?) -> Self
+
+// Type aliases
+
+// Traits
+

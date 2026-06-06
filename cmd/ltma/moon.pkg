@@ -1,0 +1,16 @@
+import {
+  "livingtree/ltma/core",
+  "livingtree/ltma/agent",
+  "livingtree/ltma/host",
+  "livingtree/ltma/llm",
+  "livingtree/ltma/tool",
+  "livingtree/ltma/tool/builtin",
+  "livingtree/ltma/agents",
+  "livingtree/ltma/orchestration",
+  "livingtree/ltma/memory",
+  "livingtree/ltma/protocol",
+}
+
+options(
+  "is-main": true,
+)
