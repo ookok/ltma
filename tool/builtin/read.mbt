@@ -2,9 +2,10 @@
 /// Read tool — read file contents.
 
 ///|
-/// Read a file and return its contents as a string.
 pub fn read_file(path : String) -> String {
-  "[read_file would read: \{path}]"
+  @xfs.read_file_to_string(path) catch {
+    e => "error reading file: \{@debug.to_string(e)}"
+  }
 }
 
 ///|

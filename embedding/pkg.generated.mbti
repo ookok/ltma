@@ -1,0 +1,26 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "livingtree/ltma/embedding"
+
+import {
+  "livingtree/ltma/memory",
+}
+
+// Values
+pub fn create_onnx_provider(String, String) -> @memory.EmbeddingProviderHandle?
+
+// Errors
+
+// Types and methods
+pub struct OnnxEmbedding {
+  handle : Int64
+  model_path : String
+  vocab_path : String
+}
+pub fn OnnxEmbedding::close(Self) -> Unit
+pub fn OnnxEmbedding::embed(Self, String) -> Array[Double]?
+pub fn OnnxEmbedding::new(String, String) -> Self?
+
+// Type aliases
+
+// Traits
+

@@ -2,11 +2,8 @@
 /// Shell tool — execute commands (native only, requires async runtime).
 
 ///|
-/// Execute a shell command and return output.
 pub fn execute_shell(command : String) -> String {
-  // In production, use @async.process or C FFI
-  // For now, return a stub response
-  "[shell_exec would run: \{command}]"
+  "[shell: would execute '\{command}']"
 }
 
 ///|

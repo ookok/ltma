@@ -2,6 +2,14 @@
 _build/
 target/
 target
+.mooncaches/
 .mooncakes/
 .moonagent/
 .opencode/skills/
+*.txt
+*.exe
+*.lib
+*.pdb
+*.dll
+!models/**/*.onnx
+!models/**/*.txt

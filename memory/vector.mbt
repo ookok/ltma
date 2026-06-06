@@ -45,6 +45,13 @@ pub struct EmbeddingProviderHandle {
 }
 
 ///|
+pub fn EmbeddingProviderHandle::create(
+  embed_fn : (String) -> Array[Double],
+) -> EmbeddingProviderHandle {
+  { embed_fn, }
+}
+
+///|
 pub fn EmbeddingProviderHandle::embed(
   self : EmbeddingProviderHandle,
   text : String,

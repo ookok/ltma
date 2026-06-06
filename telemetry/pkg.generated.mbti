@@ -1,0 +1,97 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "livingtree/ltma/telemetry"
+
+// Values
+pub fn root_logger() -> Logger
+
+// Errors
+
+// Types and methods
+pub struct Counter {
+  name : String
+  mut value : Int64
+}
+pub fn Counter::inc(Self, Int64) -> Unit
+pub fn Counter::new(String) -> Self
+pub fn Counter::reset(Self) -> Unit
+pub fn Counter::value(Self) -> Int64
+
+pub struct Gauge {
+  name : String
+  mut value : Double
+}
+pub fn Gauge::new(String) -> Self
+pub fn Gauge::set(Self, Double) -> Unit
+pub fn Gauge::value(Self) -> Double
+
+pub struct Histogram {
+  name : String
+  buckets : Map[Int64, Int64]
+  mut count : Int64
+  mut sum : Int64
+}
+pub fn Histogram::avg_ns(Self) -> Int64
+pub fn Histogram::count(Self) -> Int64
+pub fn Histogram::new(String) -> Self
+pub fn Histogram::observe(Self, Int64) -> Unit
+pub fn Histogram::sum(Self) -> Int64
+
+pub enum LogLevel {
+  Debug
+  Info
+  Warn
+  Error
+}
+
+pub struct Logger {
+  name : String
+  min_level : LogLevel
+}
+pub fn Logger::debug(Self, String) -> Unit
+pub fn Logger::debug_with(Self, String, Map[String, String]) -> Unit
+pub fn Logger::error(Self, String) -> Unit
+pub fn Logger::error_with(Self, String, Map[String, String]) -> Unit
+pub fn Logger::info(Self, String) -> Unit
+pub fn Logger::info_with(Self, String, Map[String, String]) -> Unit
+pub fn Logger::new(String) -> Self
+pub fn Logger::new_with_level(String, LogLevel) -> Self
+pub fn Logger::warn(Self, String) -> Unit
+pub fn Logger::warn_with(Self, String, Map[String, String]) -> Unit
+
+pub struct MetricsRegistry {
+  counters : Map[String, Counter]
+  gauges : Map[String, Gauge]
+  histograms : Map[String, Histogram]
+}
+pub fn MetricsRegistry::counter(Self, String) -> Counter
+pub fn MetricsRegistry::gauge(Self, String) -> Gauge
+pub fn MetricsRegistry::histogram(Self, String) -> Histogram
+pub fn MetricsRegistry::new() -> Self
+pub fn MetricsRegistry::snapshot(Self) -> String
+
+pub struct Span {
+  name : String
+  trace_id : String
+  span_id : String
+  parent_id : String?
+  start_time : Int64
+  mut end_time : Int64?
+  tags : Map[String, String]
+}
+pub fn Span::child(Self, String) -> Self
+pub fn Span::duration_ns(Self) -> Int64
+pub fn Span::finish(Self) -> Unit
+pub fn Span::new(String, String) -> Self
+pub fn Span::tag(Self, String, String) -> Unit
+pub fn Span::to_string(Self) -> String
+
+pub struct Tracer {
+  name : String
+}
+pub fn Tracer::new(String) -> Self
+pub fn Tracer::start(Self, String) -> Span
+
+// Type aliases
+
+// Traits
+

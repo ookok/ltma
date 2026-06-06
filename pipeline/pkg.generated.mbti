@@ -6,10 +6,28 @@ import {
 }
 
 // Values
+pub fn create_sandbox(@core.IsolationLevel) -> Sandbox
+
+pub fn deserialize_message(String) -> @core.Message?
+
+pub fn serialize_message(@core.Message) -> String
 
 // Errors
 
 // Types and methods
+pub struct AgentAdapter {
+  handle : @core.AgentHandle
+  mut st : @core.AgentStatus
+}
+pub fn AgentAdapter::agent_id(Self) -> @core.AgentId
+pub fn AgentAdapter::call(Self, @core.Message) -> @core.Message
+pub fn AgentAdapter::execute_tool(Self, @core.ToolCall) -> @core.ToolResult
+pub fn AgentAdapter::initialize(Self, @core.AgentContext) -> Unit
+pub fn AgentAdapter::metadata(Self) -> @core.AgentMetadata
+pub fn AgentAdapter::new(@core.AgentHandle) -> Self
+pub fn AgentAdapter::shutdown(Self) -> Unit
+pub fn AgentAdapter::status(Self) -> @core.AgentStatus
+
 pub struct HostAdapter {
   agent_id : @core.AgentId
   handle : @core.AgentHandle
@@ -33,6 +51,33 @@ pub fn LifecycleManager::new() -> Self
 pub fn LifecycleManager::reset(Self) -> Unit
 pub fn LifecycleManager::status(Self) -> @core.AgentStatus
 pub fn LifecycleManager::transition(Self, @core.AgentStatus) -> Unit
+
+pub struct Sandbox {
+  config : SandboxConfig
+  mut active : Bool
+}
+pub fn Sandbox::config(Self) -> SandboxConfig
+pub fn Sandbox::is_active(Self) -> Bool
+pub fn Sandbox::new(SandboxConfig) -> Self
+pub fn Sandbox::start(Self) -> Unit
+pub fn Sandbox::stop(Self) -> Unit
+
+pub struct SandboxConfig {
+  kind : SandboxKind
+  memory_limit_mb : Int
+  time_limit_ms : Int
+  allowed_paths : Array[String]
+  allowed_networks : Array[String]
+}
+pub fn SandboxConfig::in_process() -> Self
+pub fn SandboxConfig::process(Int, Int) -> Self
+pub fn SandboxConfig::wasm(Int, Int) -> Self
+
+pub enum SandboxKind {
+  InProcess
+  Wasm
+  Process
+}
 
 // Type aliases
 

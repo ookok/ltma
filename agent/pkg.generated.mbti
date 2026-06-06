@@ -6,6 +6,8 @@ import {
 }
 
 // Values
+pub fn create_logging_hook() -> (LifecycleEvent, @core.AgentId) -> Unit
+
 pub fn create_metadata(String, String, Array[String]) -> @core.AgentMetadata
 
 // Errors
@@ -24,7 +26,56 @@ pub fn AgentBase::run(Self, @core.Message) -> @core.Message
 pub fn AgentBase::shutdown(Self) -> Unit
 pub fn AgentBase::status(Self) -> @core.AgentStatus
 
+pub struct AgentRegistration {
+  metadata : @core.AgentMetadata
+  factory : () -> @core.AgentHandle
+}
+pub fn AgentRegistration::new(@core.AgentMetadata, () -> @core.AgentHandle) -> Self
+
+pub struct AgentRegistry {
+  entries : Map[String, AgentRegistration]
+}
+pub fn AgentRegistry::count(Self) -> Int
+pub fn AgentRegistry::list(Self) -> Array[@core.AgentMetadata]
+pub fn AgentRegistry::new() -> Self
+pub fn AgentRegistry::register(Self, @core.AgentMetadata, () -> @core.AgentHandle) -> Unit
+pub fn AgentRegistry::resolve(Self, @core.AgentId) -> AgentRegistration?
+pub fn AgentRegistry::unregister(Self, @core.AgentId) -> Unit
+
+pub struct AgentSession {
+  agent_id : @core.AgentId
+  mut session_id : String
+  params : Map[String, String]
+  variables : Map[String, String]
+}
+pub fn AgentSession::get_param(Self, String) -> String?
+pub fn AgentSession::get_var(Self, String) -> String?
+pub fn AgentSession::new(@core.AgentId) -> Self
+pub fn AgentSession::new_with_session(@core.AgentId, String) -> Self
+pub fn AgentSession::session(Self) -> String
+pub fn AgentSession::set_param(Self, String, String) -> Unit
+pub fn AgentSession::set_session(Self, String) -> Unit
+pub fn AgentSession::set_var(Self, String, String) -> Unit
+
+pub enum LifecycleEvent {
+  BeforeInit
+  AfterInit
+  BeforeRun
+  AfterRun
+  BeforeShutdown
+  AfterShutdown
+  OnError(String)
+}
+
+pub struct LifecycleHooks {
+  hooks : Array[(LifecycleEvent, @core.AgentId) -> Unit]
+}
+pub fn LifecycleHooks::add(Self, (LifecycleEvent, @core.AgentId) -> Unit) -> Unit
+pub fn LifecycleHooks::fire(Self, LifecycleEvent, @core.AgentId) -> Unit
+pub fn LifecycleHooks::new() -> Self
+
 // Type aliases
+pub type LifecycleHook = (LifecycleEvent, @core.AgentId) -> Unit
 
 // Traits
 

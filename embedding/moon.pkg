@@ -1,0 +1,13 @@
+import {
+  "livingtree/ltma/memory",
+  "moonbitlang/core/encoding/utf8",
+}
+
+options(
+  "native-stub": [ "stub.c" ],
+  targets: { "embedding.mbt": [ "native" ] },
+  "cc-flags": [
+    "-I",
+    ".mooncaches/onnxruntime/onnxruntime-win-x64-1.21.0/include",
+  ],
+)

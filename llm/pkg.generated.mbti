@@ -2,9 +2,25 @@
 package "livingtree/ltma/llm"
 
 // Values
+pub fn build_chat_body(LLMConfig, Array[ChatMessage], Array[ChatToolDef]?) -> String
+
 pub async fn call_deepseek_api(LLMConfig, Array[ChatMessage]) -> String
 
+pub async fn call_openai_api(LLMConfig, Array[ChatMessage], Array[ChatToolDef]?) -> LLMResponse
+
+pub fn check_input(String) -> SafetyVerdict
+
+pub fn check_output(String) -> SafetyVerdict
+
+pub fn create_fallback_provider(Array[LLMProviderHandle]) -> LLMProviderHandle
+
 pub fn create_mock_provider(String) -> LLMProviderHandle
+
+pub fn create_openai_provider(LLMConfig) -> LLMProviderHandle
+
+pub fn create_safe_provider(LLMProviderHandle) -> LLMProviderHandle
+
+pub fn parse_openai_response(String) -> LLMResponse
 
 // Errors
 
@@ -38,6 +54,30 @@ pub struct ChatToolDef {
 }
 pub fn ChatToolDef::create(String, String, String, Bool) -> Self
 
+pub struct CircuitBreaker {
+  mut state : CircuitState
+  mut failures : Int
+  threshold : Int
+}
+pub fn CircuitBreaker::is_open(Self) -> Bool
+pub fn CircuitBreaker::new(Int) -> Self
+pub fn CircuitBreaker::record_failure(Self) -> Unit
+pub fn CircuitBreaker::record_success(Self) -> Unit
+
+pub enum CircuitState {
+  Closed
+  Open
+  HalfOpen
+}
+
+pub struct FallbackChain {
+  providers : Array[LLMProviderHandle]
+  breaker : CircuitBreaker
+}
+pub fn FallbackChain::chat(Self, Array[ChatMessage], Array[ChatToolDef]?) -> LLMResponse
+pub fn FallbackChain::new(Array[LLMProviderHandle]) -> Self
+pub fn FallbackChain::new_with_breaker(Array[LLMProviderHandle], CircuitBreaker) -> Self
+
 pub struct LLMConfig {
   api_key : String
   model : String
@@ -46,6 +86,7 @@ pub struct LLMConfig {
   temperature : Double
 }
 pub fn LLMConfig::deepseek_default(String) -> Self
+pub fn LLMConfig::openai_default(String) -> Self
 
 pub struct LLMProviderHandle {
   config_fn : () -> LLMConfig
@@ -58,6 +99,11 @@ pub struct LLMResponse {
   content : String
   tool_calls : Array[ChatToolCall]?
   finish_reason : String
+}
+
+pub enum SafetyVerdict {
+  Pass
+  Flagged(String)
 }
 
 pub struct TokenUsage {

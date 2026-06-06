@@ -8,8 +8,12 @@ import {
   "livingtree/ltma/agents",
   "livingtree/ltma/orchestration",
   "livingtree/ltma/memory",
-  "livingtree/ltma/protocol",
+  "livingtree/ltma/embedding",
+  "livingtree/ltma/tui",
+  "moonbitlang/core/env",
 }
+
+supported_targets = "native"
 
 options(
   "is-main": true,

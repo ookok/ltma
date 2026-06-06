@@ -1,0 +1,86 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "livingtree/ltma/security"
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct AgentPermission {
+  agent_name : String
+  allowed_tools : Array[String]
+  denied_tools : Array[String]
+  allowed_agents : Array[String]
+  max_tool_calls : Int
+}
+pub fn AgentPermission::allow_agent(Self, String) -> Unit
+pub fn AgentPermission::allow_tool(Self, String) -> Unit
+pub fn AgentPermission::can_use_tool(Self, String) -> Permission
+pub fn AgentPermission::deny_tool(Self, String) -> Unit
+pub fn AgentPermission::new(String) -> Self
+
+pub enum AuditEvent {
+  AgentCreated(String)
+  AgentDestroyed(String)
+  ToolExecuted(String, String)
+  ToolDenied(String, String)
+  MessageSent(String, String)
+  PermissionCheck(String, String, Bool)
+}
+
+pub struct AuditLog {
+  mut entries : Array[String]
+  max_entries : Int
+}
+pub fn AuditLog::clear(Self) -> Unit
+pub fn AuditLog::count(Self) -> Int
+pub fn AuditLog::log(Self, AuditEvent) -> Unit
+pub fn AuditLog::new(Int) -> Self
+pub fn AuditLog::recent(Self, Int) -> Array[String]
+
+pub enum Permission {
+  Allow
+  Deny
+}
+
+pub struct PermissionManager {
+  entries : Map[String, AgentPermission]
+  default_action : Permission
+}
+pub fn PermissionManager::check_tool(Self, String, String) -> Permission
+pub fn PermissionManager::new() -> Self
+pub fn PermissionManager::permissive() -> Self
+pub fn PermissionManager::register(Self, AgentPermission) -> Unit
+
+pub enum PolicyAction {
+  Allow
+  Deny
+  Log
+  RequireApproval
+}
+
+pub struct PolicyEngine {
+  policy : SecurityPolicy
+}
+pub fn PolicyEngine::check_agent(Self, String) -> PolicyAction
+pub fn PolicyEngine::check_message_size(Self, Int) -> PolicyAction
+pub fn PolicyEngine::check_tool(Self, String) -> PolicyAction
+pub fn PolicyEngine::new(SecurityPolicy) -> Self
+
+pub struct SecurityPolicy {
+  name : String
+  max_tool_calls_per_run : Int
+  require_human_approval : Array[String]
+  blocked_tools : Array[String]
+  blocked_agents : Array[String]
+  allowed_networks : Array[String]
+  max_message_size : Int
+}
+pub fn SecurityPolicy::default() -> Self
+pub fn SecurityPolicy::permissive() -> Self
+pub fn SecurityPolicy::restrictive() -> Self
+
+// Type aliases
+
+// Traits
+

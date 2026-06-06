@@ -2,9 +2,23 @@
 /// Write tool — write content to a file.
 
 ///|
-/// Write content to a file. Returns success status.
 pub fn write_file(path : String, content : String) -> String {
-  "[write_file would write to: \{path} (\{content.length()} chars)]"
+  try {
+    @xfs.write_string_to_file(path, content)
+    "ok: wrote \{content.length()} bytes to \{path}"
+  } catch {
+    e => "error writing file: \{@debug.to_string(e)}"
+  }
+}
+
+///|
+fn write_file_json(input : String) -> String {
+  let path = extract_field(input, "path")
+  let content = extract_field(input, "content")
+  match (path, content) {
+    (Some(p), Some(c)) => write_file(p, c)
+    _ => "error: missing 'path' or 'content' in JSON arguments"
+  }
 }
 
 ///|

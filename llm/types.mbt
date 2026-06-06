@@ -22,6 +22,18 @@ pub fn LLMConfig::deepseek_default(api_key : String) -> LLMConfig {
 }
 
 ///|
+/// OpenAI-compatible default config (also works for Anthropic, Azure, etc.)
+pub fn LLMConfig::openai_default(api_key : String) -> LLMConfig {
+  {
+    api_key,
+    model: "gpt-4o",
+    api_url: "https://api.openai.com/v1/chat/completions",
+    max_tokens: 4096,
+    temperature: 0.7,
+  }
+}
+
+///|
 pub struct ChatRole {
   code : Int
 }

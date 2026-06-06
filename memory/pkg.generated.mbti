@@ -26,6 +26,7 @@ pub fn Document::new(String, String, String) -> Self
 pub struct EmbeddingProviderHandle {
   embed_fn : (String) -> Array[Double]
 }
+pub fn EmbeddingProviderHandle::create((String) -> Array[Double]) -> Self
 pub fn EmbeddingProviderHandle::embed(Self, String) -> Array[Double]
 
 pub struct Entity {

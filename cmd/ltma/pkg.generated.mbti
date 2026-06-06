@@ -8,19 +8,23 @@ import {
 // Values
 pub fn echo_handle() -> @core.AgentHandle
 
+pub fn print_help() -> Unit
+
 // Errors
 
 // Types and methods
 pub struct Args {
   command : Command
-  message : String
 }
 pub fn Args::parse() -> Self
 
 pub enum Command {
+  Demo
+  Run(String, String)
+  Chat
   List
-  Run(String)
   Help
+  Version
 }
 
 // Type aliases
