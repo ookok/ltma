@@ -254,3 +254,48 @@ pub fn create_async_code_agent(
     },
   )
 }
+
+///|
+/// RAG agent — Retrieval-Augmented Generation with vector store + knowledge graph.
+pub fn create_rag_agent(
+  provider : @llm.AsyncLLMProviderHandle,
+  vector_store : @memory.VectorStore,
+  embed_provider : @memory.EmbeddingProviderHandle,
+  kg : @memory.KnowledgeGraph,
+) -> @core.AsyncAgentHandle {
+  let mut messages : Array[@llm.ChatMessage] = []
+  @core.make_async_handle(
+    (),
+    fn(_) { "rag-agent" },
+    fn(_) {
+      @core.AgentMetadata::create(
+        @core.AgentId::create("rag-agent", "0.1.0", "livingtree/ltma"),
+        "RAG knowledge agent with vector search + knowledge graph",
+        ["rag", "knowledge", "vector", "search", "async"],
+        @core.IsolationLevel::in_process(), @core.Target::native(), "0.1.0",
+      )
+    },
+    fn(_, _ctx) { messages = [] },
+    async fn(_, input) -> @core.Message {
+      if !input.is_text() { return @core.Message::text("unsupported") }
+      let query = input.get_text()
+      let results = vector_store.search(query, 3, embed_provider)
+      let mut context = ""
+      for i = 0; i < results.length(); i = i + 1 {
+        context = context + "[Doc] " + results[i].text + " (score:" + results[i].score.to_string() + ")\n"
+      }
+      let entities = kg.search_entities(query)
+      for e in entities {
+        context = context + "[KG] " + e.name + ": " + e.metadata + "\n"
+      }
+      let augmented = if context != "" { "Context:\n" + context + "\nQuestion: " + query } else { query }
+      messages.push(@llm.ChatMessage::new(@llm.ChatRole::system(), "Answer based on retrieved context."))
+      messages.push(@llm.ChatMessage::new(@llm.ChatRole::user(), augmented))
+      let resp = provider.chat(messages, None)
+      @core.Message::text(resp.content)
+    },
+    fn(_) { messages = [] },
+    fn(_) { @core.AgentStatus::idle() },
+    fn(_, _call) -> @core.ToolResult { @core.ToolResult::create("", false, "", None) },
+  )
+}
