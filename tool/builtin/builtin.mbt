@@ -51,6 +51,7 @@ pub fn register_builtins(reg : @tool.ToolRegistry) -> Unit {
   reg.register(glob_tool_def(), glob_tool_json)
 
   // Web & interaction
+  reg.register(websearch_tool_def(), websearch)
   reg.register(webfetch_tool_def(), webfetch_tool)
   reg.register(question_tool_def(), question_tool_json)
 

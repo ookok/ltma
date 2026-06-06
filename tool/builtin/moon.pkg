@@ -1,6 +1,8 @@
 import {
   "livingtree/ltma/core",
   "livingtree/ltma/tool",
+  "moonbitlang/async",
+  "moonbitlang/async/http" @async_http,
   "moonbitlang/x/fs" @xfs,
   "moonbitlang/core/debug",
   "moonbitlang/core/string",
