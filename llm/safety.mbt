@@ -46,6 +46,7 @@ pub fn create_safe_provider(inner : LLMProviderHandle) -> LLMProviderHandle {
               content: "[blocked by safety: " + reason + "]",
               tool_calls: None,
               finish_reason: "stop",
+              usage: None,
             }
           SafetyVerdict::Pass => ()
         }
@@ -57,6 +58,7 @@ pub fn create_safe_provider(inner : LLMProviderHandle) -> LLMProviderHandle {
             content: "[blocked by safety: " + reason + "]",
             tool_calls: None,
             finish_reason: "stop",
+            usage: None,
           }
         SafetyVerdict::Pass => response
       }

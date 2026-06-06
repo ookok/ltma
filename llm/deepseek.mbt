@@ -65,6 +65,7 @@ pub fn create_mock_provider(resp_text : String) -> LLMProviderHandle {
         content: resp_text,
         tool_calls: None,
         finish_reason: "stop",
+        usage: None,
       }
     },
   }

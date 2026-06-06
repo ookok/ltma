@@ -76,6 +76,7 @@ pub fn FallbackChain::chat(
       content: "[circuit breaker open: too many failures]",
       tool_calls: None,
       finish_reason: "error",
+      usage: None,
     }
   }
   for i = 0; i < self.providers.length(); i = i + 1 {
@@ -92,6 +93,7 @@ pub fn FallbackChain::chat(
     content: "[all providers failed]",
     tool_calls: None,
     finish_reason: "error",
+    usage: None,
   }
 }
 

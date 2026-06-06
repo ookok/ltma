@@ -156,6 +156,7 @@ pub struct LLMResponse {
   content : String
   tool_calls : Array[ChatToolCall]?
   finish_reason : String
+  usage : TokenUsage?
 }
 
 ///|

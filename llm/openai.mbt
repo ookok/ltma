@@ -110,6 +110,7 @@ pub async fn call_openai_api(
       content: "API error: " + resp.code.to_string(),
       tool_calls: None,
       finish_reason: "error",
+      usage: None,
     }
   }
 }
@@ -120,10 +121,45 @@ pub fn parse_openai_response(body : String) -> LLMResponse {
   let content = extract_quoted(body, "\"content\":\"")
   let finish = extract_quoted(body, "\"finish_reason\":\"")
   let calls = extract_tool_calls(body)
+  let usage = extract_usage(body)
   LLMResponse::{
     content: content.unwrap_or(""),
     tool_calls: calls,
     finish_reason: finish.unwrap_or("stop"),
+    usage,
+  }
+}
+
+///|
+/// Extract token usage from an OpenAI response body.
+fn extract_usage(body : String) -> TokenUsage? {
+  let prompt = extract_int_field(body, "\"prompt_tokens\"")
+  let completion = extract_int_field(body, "\"completion_tokens\"")
+  let total = extract_int_field(body, "\"total_tokens\"")
+  match (prompt, completion, total) {
+    (Some(p), Some(c), Some(t)) => Some({ prompt_tokens: p, completion_tokens: c, total_tokens: t })
+    _ => None
+  }
+}
+
+///|
+fn extract_int_field(json : String, field : String) -> Int? {
+  let search = field + ":"
+  match json.find(search) {
+    Some(start) => {
+      let after = json.sub(start=start + search.length()).to_owned()
+      let mut num_str = ""
+      for i = 0; i < after.length(); i = i + 1 {
+        let c = after[i]
+        if c >= '0' && c <= '9' {
+          num_str = num_str + c.to_string()
+        } else {
+          break
+        }
+      }
+      if num_str != "" { Some(try { @string.parse_int(num_str) } catch { _ => 0 }) } else { None }
+    }
+    None => None
   }
 }
 
@@ -202,6 +238,7 @@ pub fn create_openai_provider(config : LLMConfig) -> LLMProviderHandle {
         content: "[openai provider: sync mode, use create_async_openai_provider for real calls]",
         tool_calls: None,
         finish_reason: "stop",
+        usage: None,
       }
     },
   }
