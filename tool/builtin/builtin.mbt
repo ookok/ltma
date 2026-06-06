@@ -46,6 +46,22 @@ pub fn register_builtins(reg : @tool.ToolRegistry) -> Unit {
   reg.register(mem_tool_def("mem_store", "Store a value in agent memory"), mem_store_json)
   reg.register(mem_tool_def("mem_recall", "Recall a value from agent memory"), mem_recall_json)
 
+  // File search
+  reg.register(grep_tool_def(), grep_tool_json)
+  reg.register(glob_tool_def(), glob_tool_json)
+
+  // Web & interaction
+  reg.register(webfetch_tool_def(), webfetch_tool)
+  reg.register(question_tool_def(), question_tool_json)
+
+  // Task management
+  reg.register(task_tool_def(), task_tool_json)
+  reg.register(todo_def("todo_add", "Add a todo item"), todo_add_json)
+  reg.register(todo_def("todo_list", "List all todo items"), todo_list)
+
+  // Knowledge
+  reg.register(skill_tool_def(), skill_tool_json)
+
   // Demo
   reg.register(
     @core.ToolDefinition::create("echo", "Echo input back", "{type:object,properties:{input:{type:string}}}", false),
