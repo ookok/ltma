@@ -6,7 +6,7 @@ import {
 }
 
 // Values
-pub fn start_chat_tui(@host.AgentHost) -> Unit
+pub fn start_chat_tui(@host.AgentHost, agent_name~ : String) -> Unit
 
 // Errors
 

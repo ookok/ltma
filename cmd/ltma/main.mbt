@@ -11,7 +11,7 @@ fn main {
     Command::ListAgents => cmd_list()
     Command::ListProviders => cmd_list_providers()
     Command::Run(agent, msg) => cmd_run(agent, msg)
-    Command::Chat => cmd_chat()
+    Command::Chat(agent) => cmd_chat(agent)
     Command::AsyncChat(provider_str, model_str, api_key) =>
       cmd_async_chat(provider_str, model_str, api_key)
   }
@@ -103,10 +103,12 @@ fn cmd_run(agent_name : String, msg : String) -> Unit {
 }
 
 ///|
-fn cmd_chat() -> Unit {
+fn cmd_chat(agent_name : String) -> Unit {
   let host = setup_host()
-  println("Starting TUI chat interface (ESC to quit)...")
-  @tui.start_chat_tui(host)
+  println(
+    "Starting TUI chat interface with agent '\{agent_name}' (ESC to quit)...",
+  )
+  @tui.start_chat_tui(host, agent_name~)
 }
 
 ///|

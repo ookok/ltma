@@ -21,7 +21,7 @@ pub fn Args::parse() -> Self
 pub enum Command {
   Demo
   Run(String, String)
-  Chat
+  Chat(String)
   AsyncChat(String, String, String)
   ListAgents
   ListProviders

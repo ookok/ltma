@@ -8,17 +8,11 @@ import {
 }
 
 // Values
-pub fn apply_easing(Easing, Double) -> Double
-
 pub fn chat_bubble(ChatMessage, theme~ : Theme, is_streaming~ : Bool, spinner_frame~ : Int?, spinner~ : Array[String]) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn chat_ui(Array[ChatMessage], String, theme~ : Theme, streaming_id~ : Int?, spinner_frame? : Int, spinner? : Array[String]) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn chat_ui(Array[ChatMessage], String, theme~ : Theme, streaming_id~ : Int?, scroll_top~ : Int, spinner_frame? : Int, spinner? : Array[String]) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn default_spinner() -> Array[String]
-
-pub fn divider(theme~ : Theme) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn lerp(Double, Double, Double) -> Double
 
 pub fn md_to_vnode(Array[MdNode], Theme) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
@@ -26,30 +20,14 @@ pub fn parse_markdown(String) -> Array[MdNode]
 
 pub fn spinner_char(Array[String], Int) -> String
 
-pub fn status_bar(String, theme~ : Theme) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
 // Errors
 
 // Types and methods
-pub enum AnimationStatus {
-  Pending
-  Running
-  Finished
-  Cancelled
-}
-
 pub struct ChatMessage {
   role : String
   content : String
 }
 pub fn ChatMessage::new(String, String) -> Self
-
-pub enum Easing {
-  Linear
-  EaseIn
-  EaseOut
-  EaseInOut
-}
 
 pub struct EngineRenderer {
   app : @vnode.VNodeApp
@@ -81,6 +59,7 @@ pub fn StreamingBuffer::full_text(Self) -> String
 pub fn StreamingBuffer::is_complete(Self) -> Bool
 pub fn StreamingBuffer::new() -> Self
 pub fn StreamingBuffer::reveal_all(Self) -> Unit
+pub fn StreamingBuffer::reveal_n(Self, Int) -> Unit
 pub fn StreamingBuffer::reveal_one_more(Self) -> Unit
 pub fn StreamingBuffer::set_text(Self, String) -> Unit
 

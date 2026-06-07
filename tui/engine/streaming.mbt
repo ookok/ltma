@@ -19,7 +19,7 @@ pub fn StreamingBuffer::append(self : StreamingBuffer, chunk : String) -> Unit {
 ///|
 pub fn StreamingBuffer::set_text(self : StreamingBuffer, text : String) -> Unit {
   self.full.set(text)
-  self.revealed.set(text.length())
+  self.revealed.set(0)
 }
 
 ///|

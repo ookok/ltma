@@ -5,7 +5,7 @@
 pub enum Command {
   Demo
   Run(String, String)
-  Chat
+  Chat(String)
   AsyncChat(String, String, String)
   ListAgents
   ListProviders
@@ -30,7 +30,8 @@ pub fn Args::parse() -> Args {
       let msg = if raw.length() >= 4 { raw[3] } else { "" }
       { command: Command::Run(agent, msg) }
     } else if cmd == "chat" {
-      { command: Command::Chat }
+      let agent = if raw.length() >= 3 { raw[2] } else { "echo" }
+      { command: Command::Chat(agent) }
     } else if cmd == "async" {
       // ltma async <provider> [model] <api_key>
       if raw.length() >= 4 {

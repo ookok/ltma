@@ -301,3 +301,74 @@ test "parse_markdown mixed headings and text" {
   inspect(bold_count, content="1")
   inspect(text_count > 0, content="true")
 }
+
+///|
+test "ChatMessage new creates message struct" {
+  let m = ChatMessage::new("user", "hello")
+  inspect(m.role, content="user")
+  inspect(m.content, content="hello")
+}
+
+///|
+test "chat_bubble renders user message" {
+  let theme = Theme::dark()
+  let msg = ChatMessage::new("user", "hello")
+  let result = chat_bubble(
+    msg,
+    theme~,
+    is_streaming=false,
+    spinner_frame=None,
+    spinner=default_spinner(),
+  )
+  let rendered = @vnode.render_vnode_once(80, 24, result)
+  inspect(rendered.length() > 0, content="true")
+}
+
+///|
+test "chat_bubble renders ai message" {
+  let theme = Theme::dark()
+  let msg = ChatMessage::new("assistant", "hi there")
+  let result = chat_bubble(
+    msg,
+    theme~,
+    is_streaming=false,
+    spinner_frame=None,
+    spinner=default_spinner(),
+  )
+  let rendered = @vnode.render_vnode_once(80, 24, result)
+  inspect(rendered.length() > 0, content="true")
+}
+
+///|
+test "chat_bubble renders streaming message" {
+  let theme = Theme::dark()
+  let msg = ChatMessage::new("assistant", "typing...")
+  let result = chat_bubble(
+    msg,
+    theme~,
+    is_streaming=true,
+    spinner_frame=Some(0),
+    spinner=default_spinner(),
+  )
+  let rendered = @vnode.render_vnode_once(80, 24, result)
+  inspect(rendered.length() > 0, content="true")
+}
+
+///|
+test "chat_ui renders with messages" {
+  let theme = Theme::dark()
+  let msgs = [
+    ChatMessage::new("user", "hello"),
+    ChatMessage::new("assistant", "world"),
+  ]
+  let result = chat_ui(
+    msgs,
+    "",
+    theme~,
+    streaming_id=None,
+    scroll_top=0,
+    spinner=default_spinner(),
+  )
+  let rendered = @vnode.render_vnode_once(80, 24, result)
+  inspect(rendered.length() > 0, content="true")
+}
