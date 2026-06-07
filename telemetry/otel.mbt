@@ -26,5 +26,15 @@ pub fn export_span(
     Some(p) => " parent=" + p
     None => ""
   }
-  println("[otel] trace=" + trace_id + " span=" + span_id + parent + " name=" + name + " duration_ns=" + duration_ns.to_string())
+  println(
+    "[otel] trace=" +
+    trace_id +
+    " span=" +
+    span_id +
+    parent +
+    " name=" +
+    name +
+    " duration_ns=" +
+    duration_ns.to_string(),
+  )
 }

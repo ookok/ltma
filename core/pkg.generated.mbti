@@ -2,7 +2,33 @@
 package "livingtree/ltma/core"
 
 // Values
+pub fn check_message_eq(Message, String) -> Bool
+
+pub fn collect_stream(StreamHandle) -> String
+
+pub fn create_mock_contract(String) -> ContractHandle
+
+pub fn create_mock_handle(MockAgentConfig) -> AgentHandle
+
+pub fn feature_async_agents() -> String
+
+pub fn feature_dag_pipeline() -> String
+
+pub fn feature_experimental_tools() -> String
+
+pub fn feature_streaming() -> String
+
+pub fn json_encode(JsonValue) -> String
+
+pub fn[T] make_async_handle(T, (T) -> String, (T) -> AgentMetadata, (T, AgentContext) -> Unit, async (T, Message) -> Message, (T) -> Unit, (T) -> AgentStatus, (T, ToolCall) -> ToolResult) -> AsyncAgentHandle
+
 pub fn[T] make_handle(T, (T) -> String, (T) -> AgentMetadata, (T, AgentContext) -> Unit, (T, Message) -> Message, (T) -> Unit, (T) -> AgentStatus, (T, ToolCall) -> ToolResult) -> AgentHandle
+
+pub fn test_message(String) -> Message
+
+pub fn wrap_async_contract(String, AgentMetadata, AsyncContractHandle) -> AsyncAgentHandle
+
+pub fn wrap_contract(String, AgentMetadata, ContractHandle) -> AgentHandle
 
 // Errors
 
@@ -18,12 +44,10 @@ pub fn AgentContext::new(AgentId) -> Self
 pub struct AgentHandle {
   id_fn : () -> String
   metadata_fn : () -> AgentMetadata
-  init_fn : (AgentContext) -> Unit
-  run_fn : (Message) -> Message
-  shutdown_fn : () -> Unit
-  status_fn : () -> AgentStatus
-  execute_tool_fn : (ToolCall) -> ToolResult
+  contract_fn : () -> ContractHandle
 }
+pub fn AgentHandle::contract(Self) -> ContractHandle
+pub fn AgentHandle::create(() -> String, () -> AgentMetadata, () -> ContractHandle) -> Self
 pub fn AgentHandle::execute_tool(Self, ToolCall) -> ToolResult
 pub fn AgentHandle::id(Self) -> String
 pub fn AgentHandle::init(Self, AgentContext) -> Unit
@@ -67,12 +91,207 @@ pub fn AgentStatus::new_st() -> Self
 pub fn AgentStatus::running() -> Self
 pub fn AgentStatus::shutdown_st() -> Self
 
+pub struct AsyncAgentHandle {
+  id_fn : () -> String
+  metadata_fn : () -> AgentMetadata
+  contract_fn : () -> AsyncContractHandle
+}
+pub fn AsyncAgentHandle::contract(Self) -> AsyncContractHandle
+pub fn AsyncAgentHandle::create(() -> String, () -> AgentMetadata, () -> AsyncContractHandle) -> Self
+pub fn AsyncAgentHandle::execute_tool(Self, ToolCall) -> ToolResult
+pub fn AsyncAgentHandle::id(Self) -> String
+pub fn AsyncAgentHandle::init(Self, AgentContext) -> Unit
+pub fn AsyncAgentHandle::metadata(Self) -> AgentMetadata
+pub async fn AsyncAgentHandle::run(Self, Message) -> Message
+pub fn AsyncAgentHandle::shutdown(Self) -> Unit
+pub fn AsyncAgentHandle::status(Self) -> AgentStatus
+
+pub struct AsyncContractHandle {
+  init_fn : (AgentContext) -> Unit
+  run_fn : async (Message) -> Message
+  shutdown_fn : () -> Unit
+  status_fn : () -> AgentStatus
+  execute_tool_fn : (ToolCall) -> ToolResult
+}
+pub fn AsyncContractHandle::create((AgentContext) -> Unit, async (Message) -> Message, () -> Unit, () -> AgentStatus, (ToolCall) -> ToolResult) -> Self
+pub fn AsyncContractHandle::execute_tool(Self, ToolCall) -> ToolResult
+pub fn AsyncContractHandle::init(Self, AgentContext) -> Unit
+pub async fn AsyncContractHandle::run(Self, Message) -> Message
+pub fn AsyncContractHandle::shutdown(Self) -> Unit
+pub fn AsyncContractHandle::status(Self) -> AgentStatus
+
+pub struct Bulkhead {
+  name : String
+  config : BulkheadConfig
+  mut active : Int
+  mut queued : Int
+  mut rejected : Int
+}
+pub fn Bulkhead::active_count(Self) -> Int
+pub fn Bulkhead::new(String, BulkheadConfig) -> Self
+pub fn Bulkhead::queued_count(Self) -> Int
+pub fn Bulkhead::rejected_count(Self) -> Int
+pub fn Bulkhead::release(Self) -> Unit
+pub fn Bulkhead::try_acquire(Self) -> Bool
+pub fn Bulkhead::utilization(Self) -> Double
+
+pub struct BulkheadConfig {
+  max_concurrent : Int
+  max_queue : Int
+}
+pub fn BulkheadConfig::default() -> Self
+pub fn BulkheadConfig::restrictive() -> Self
+
+pub struct BulkheadRegistry {
+  entries : Map[String, Bulkhead]
+}
+pub fn BulkheadRegistry::get_or_create(Self, String, BulkheadConfig) -> Bulkhead
+pub fn BulkheadRegistry::new() -> Self
+pub fn BulkheadRegistry::snapshot(Self) -> Array[(String, Int, Int, Int)]
+
+pub struct Capability {
+  name : String
+  description : String
+}
+pub fn Capability::new(String, String) -> Self
+
+pub struct Config {
+  root : ConfigSection
+}
+pub fn Config::get(Self, String, String) -> ConfigValue?
+pub fn Config::new() -> Self
+pub fn Config::section(Self, String) -> ConfigSection?
+pub fn Config::set(Self, String, String, String) -> Unit
+
+pub struct ConfigManager {
+  mut config : Config
+  watchers : Array[(Config) -> Unit]
+}
+pub fn ConfigManager::config(Self) -> Config
+pub fn ConfigManager::new(Config) -> Self
+pub fn ConfigManager::reload(Self, Config) -> Unit
+pub fn ConfigManager::watch(Self, (Config) -> Unit) -> Unit
+
+pub struct ConfigSection {
+  name : String
+  values : Map[String, ConfigValue]
+  children : Map[String, ConfigSection]
+}
+pub fn ConfigSection::get(Self, String) -> ConfigValue?
+pub fn ConfigSection::new(String) -> Self
+pub fn ConfigSection::section(Self, String) -> Self?
+pub fn ConfigSection::set(Self, String, String) -> Unit
+
+pub struct ConfigValue {
+  value : String
+}
+pub fn ConfigValue::as_bool(Self) -> Bool
+pub fn ConfigValue::as_int(Self) -> Int?
+pub fn ConfigValue::as_string(Self) -> String
+pub fn ConfigValue::new(String) -> Self
+
+pub struct ContractBase {
+  pipeline_version : ContractSemVer
+  contract_name : String
+  min_host_version : ContractSemVer
+}
+pub fn ContractBase::create(ContractSemVer, String, ContractSemVer) -> Self
+pub fn ContractBase::is_compatible(Self, ContractSemVer) -> Bool
+
+pub struct ContractHandle {
+  init_fn : (AgentContext) -> Unit
+  run_fn : (Message) -> Message
+  shutdown_fn : () -> Unit
+  status_fn : () -> AgentStatus
+  execute_tool_fn : (ToolCall) -> ToolResult
+}
+pub fn ContractHandle::create((AgentContext) -> Unit, (Message) -> Message, () -> Unit, () -> AgentStatus, (ToolCall) -> ToolResult) -> Self
+pub fn ContractHandle::execute_tool(Self, ToolCall) -> ToolResult
+pub fn ContractHandle::init(Self, AgentContext) -> Unit
+pub fn ContractHandle::run(Self, Message) -> Message
+pub fn ContractHandle::shutdown(Self) -> Unit
+pub fn ContractHandle::status(Self) -> AgentStatus
+
+pub struct ContractSemVer {
+  major : Int
+  minor : Int
+  patch : Int
+}
+pub fn ContractSemVer::new(Int, Int, Int) -> Self
+pub fn ContractSemVer::to_string(Self) -> String
+
+pub struct Deadline {
+  deadline_ms : Int
+}
+pub fn Deadline::is_expired(Self, Int) -> Bool
+pub fn Deadline::new(Int, Int) -> Self
+pub fn Deadline::remaining_ms(Self, Int) -> Int
+
+pub struct FeatureFlag {
+  name : String
+  mut enabled : Bool
+  description : String
+}
+pub fn FeatureFlag::disable(Self) -> Unit
+pub fn FeatureFlag::enable(Self) -> Unit
+pub fn FeatureFlag::is_enabled(Self) -> Bool
+pub fn FeatureFlag::new(String, Bool, String) -> Self
+
+pub struct FeatureFlags {
+  flags : Map[String, FeatureFlag]
+}
+pub fn FeatureFlags::count(Self) -> Int
+pub fn FeatureFlags::disable(Self, String) -> Unit
+pub fn FeatureFlags::enable(Self, String) -> Unit
+pub fn FeatureFlags::is_enabled(Self, String) -> Bool
+pub fn FeatureFlags::list(Self) -> Array[FeatureFlag]
+pub fn FeatureFlags::new() -> Self
+pub fn FeatureFlags::register(Self, FeatureFlag) -> Unit
+
+pub struct FieldSchema {
+  name : String
+  typ : SchemaType
+  required : Bool
+  description : String
+}
+pub fn FieldSchema::new(String, SchemaType, Bool, String) -> Self
+
+pub struct HostViewOfAddIn {
+  agent_id : AgentId
+  metadata : AgentMetadata
+  contract : ContractHandle
+  capabilities : Array[Capability]
+}
+pub fn HostViewOfAddIn::call(Self, Message) -> Message
+pub fn HostViewOfAddIn::create(AgentId, AgentMetadata, ContractHandle, Array[Capability]) -> Self
+pub fn HostViewOfAddIn::execute_tool(Self, ToolCall) -> ToolResult
+pub fn HostViewOfAddIn::has_capability(Self, String) -> Bool
+pub fn HostViewOfAddIn::id(Self) -> AgentId
+pub fn HostViewOfAddIn::list_capabilities(Self) -> Array[Capability]
+pub fn HostViewOfAddIn::shutdown(Self) -> Unit
+pub fn HostViewOfAddIn::status(Self) -> AgentStatus
+
 pub struct IsolationLevel {
   code : Int
 }
 pub fn IsolationLevel::in_process() -> Self
 pub fn IsolationLevel::process() -> Self
 pub fn IsolationLevel::wasm_sandbox() -> Self
+
+pub enum JsonValue {
+  JNull
+  JBool(Bool)
+  JNumber(Int)
+  JString(String)
+  JArray(Array[JsonValue])
+  JObject(Map[String, JsonValue])
+}
+pub fn JsonValue::array(Array[Self]) -> Self
+pub fn JsonValue::bool(Bool) -> Self
+pub fn JsonValue::int(Int) -> Self
+pub fn JsonValue::null() -> Self
+pub fn JsonValue::object(Map[String, Self]) -> Self
+pub fn JsonValue::string(String) -> Self
 
 pub struct Message {
   kind : Int
@@ -89,6 +308,22 @@ pub fn Message::system_status_request() -> Self
 pub fn Message::system_status_response(AgentStatus) -> Self
 pub fn Message::text(String) -> Self
 
+pub struct MessageSchema {
+  kind : String
+  fields : Array[FieldSchema]
+}
+pub fn MessageSchema::new(String, Array[FieldSchema]) -> Self
+pub fn MessageSchema::validate(Self, Message) -> Array[String]
+
+pub struct MockAgentConfig {
+  name : String
+  version : String
+  description : String
+  capabilities : Array[String]
+  echo_prefix : String
+}
+pub fn MockAgentConfig::new(String) -> Self
+
 pub enum PipelineError {
   AgentNotFound(String)
   ActivationFailed(String)
@@ -98,10 +333,74 @@ pub enum PipelineError {
   Unknown(String)
 }
 
-pub struct SearchResult {
-  key : String
-  score : Double
-  content : String
+pub struct SchemaRegistry {
+  message_schemas : Map[String, MessageSchema]
+  tool_schemas : Map[String, ToolCallSchema]
+}
+pub fn SchemaRegistry::new() -> Self
+pub fn SchemaRegistry::register_message(Self, MessageSchema) -> Unit
+pub fn SchemaRegistry::register_tool(Self, ToolCallSchema) -> Unit
+pub fn SchemaRegistry::validate_message(Self, String, Message) -> Array[String]
+pub fn SchemaRegistry::validate_tool_call(Self, ToolCall) -> Array[String]
+
+pub enum SchemaType {
+  String
+  Int
+  Bool
+  Array
+  Object
+}
+
+pub struct SessionId {
+  value : String
+}
+pub fn SessionId::new(String) -> Self
+pub fn SessionId::to_string(Self) -> String
+
+pub struct SessionState {
+  id : SessionId
+  messages : Array[Message]
+  metadata : Map[String, String]
+  created_at : Int
+  mut updated_at : Int
+}
+pub fn SessionState::add_message(Self, Message) -> Unit
+pub fn SessionState::get_meta(Self, String) -> String?
+pub fn SessionState::new(SessionId) -> Self
+pub fn SessionState::set_meta(Self, String, String) -> Unit
+
+pub struct SessionStore {
+  sessions : Map[String, SessionState]
+}
+pub fn SessionStore::count(Self) -> Int
+pub fn SessionStore::create(Self, SessionId) -> SessionState
+pub fn SessionStore::get(Self, SessionId) -> SessionState?
+pub fn SessionStore::list(Self) -> Array[SessionState]
+pub fn SessionStore::new() -> Self
+pub fn SessionStore::remove(Self, SessionId) -> Unit
+
+pub struct StreamChunk {
+  text : String
+  index : Int
+  is_last : Bool
+}
+pub fn StreamChunk::new(String, Int, Bool) -> Self
+
+pub struct StreamHandle {
+  mut cancelled : Bool
+  mut on_chunk : (StreamChunk) -> Unit
+  on_complete : () -> Unit
+  on_error : (String) -> Unit
+}
+pub fn StreamHandle::cancel(Self) -> Unit
+pub fn StreamHandle::error(Self, String) -> Unit
+pub fn StreamHandle::is_cancelled(Self) -> Bool
+pub fn StreamHandle::new((StreamChunk) -> Unit, () -> Unit, (String) -> Unit) -> Self
+pub fn StreamHandle::send(Self, StreamChunk) -> Unit
+
+pub enum StreamResult {
+  Full(Message)
+  Stream(StreamHandle)
 }
 
 pub struct Target {
@@ -111,12 +410,40 @@ pub fn Target::js() -> Self
 pub fn Target::native() -> Self
 pub fn Target::wasm() -> Self
 
+pub struct TimeoutPolicy {
+  default_ms : Int
+  llm_call_ms : Int
+  tool_exec_ms : Int
+  agent_init_ms : Int
+}
+pub fn TimeoutPolicy::default() -> Self
+pub fn TimeoutPolicy::for_default(Self) -> Int
+pub fn TimeoutPolicy::for_init(Self) -> Int
+pub fn TimeoutPolicy::for_llm(Self) -> Int
+pub fn TimeoutPolicy::for_tool(Self) -> Int
+
+pub struct TimeoutTracker {
+  active_calls : Map[String, Deadline]
+}
+pub fn TimeoutTracker::complete(Self, String) -> Unit
+pub fn TimeoutTracker::is_expired(Self, String, Int) -> Bool
+pub fn TimeoutTracker::new() -> Self
+pub fn TimeoutTracker::pending_count(Self) -> Int
+pub fn TimeoutTracker::register(Self, String, Int, Int) -> Unit
+
 pub struct ToolCall {
   id : String
   name : String
   arguments : String
 }
 pub fn ToolCall::create(String, String, String) -> Self
+
+pub struct ToolCallSchema {
+  tool_name : String
+  params : Array[FieldSchema]
+}
+pub fn ToolCallSchema::new(String, Array[FieldSchema]) -> Self
+pub fn ToolCallSchema::validate(Self, ToolCall) -> Array[String]
 
 pub struct ToolDefinition {
   name : String
@@ -134,7 +461,17 @@ pub struct ToolResult {
 }
 pub fn ToolResult::create(String, Bool, String, String?) -> Self
 
+pub struct VersionInfo {
+  contract : ContractBase
+  handle : ContractHandle
+}
+pub fn VersionInfo::create(ContractBase, ContractHandle) -> Self
+pub fn VersionInfo::is_compatible(Self, ContractSemVer) -> Bool
+
 // Type aliases
+pub type ConfigWatcher = (Config) -> Unit
+
+pub type StreamCallback = (StreamChunk) -> Unit
 
 // Traits
 

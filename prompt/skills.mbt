@@ -10,7 +10,11 @@ pub struct Skill {
 }
 
 ///|
-pub fn Skill::new(name : String, description : String, content : String) -> Skill {
+pub fn Skill::new(
+  name : String,
+  description : String,
+  content : String,
+) -> Skill {
   { name, description, content }
 }
 
@@ -31,10 +35,7 @@ pub fn SkillRegistry::register(self : SkillRegistry, skill : Skill) -> Unit {
 }
 
 ///|
-pub fn SkillRegistry::load(
-  self : SkillRegistry,
-  name : String,
-) -> Skill? {
+pub fn SkillRegistry::load(self : SkillRegistry, name : String) -> Skill? {
   self.skills.get(name)
 }
 

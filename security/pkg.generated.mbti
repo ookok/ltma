@@ -27,6 +27,12 @@ pub enum AuditEvent {
   MessageSent(String, String)
   PermissionCheck(String, String, Bool)
 }
+pub fn AuditEvent::agent_created(String) -> Self
+pub fn AuditEvent::agent_destroyed(String) -> Self
+pub fn AuditEvent::message_sent(String, String) -> Self
+pub fn AuditEvent::permission_check(String, String, Bool) -> Self
+pub fn AuditEvent::tool_denied(String, String) -> Self
+pub fn AuditEvent::tool_executed(String, String) -> Self
 
 pub struct AuditLog {
   mut entries : Array[String]

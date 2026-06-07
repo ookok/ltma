@@ -3,8 +3,9 @@
 
 ///|
 pub fn grep_tool(pattern : String, path : String) -> String {
-  let content = try { @xfs.read_file_to_string(path) } catch { _ => return "error reading: " + path }
-  let lower_content = content.to_lower()
+  let content = @xfs.read_file_to_string(path) catch {
+    _ => return "error reading: " + path
+  }
   let lower_pattern = pattern.to_lower()
   let lines = content.split("\n")
   let mut result = ""
@@ -16,18 +17,27 @@ pub fn grep_tool(pattern : String, path : String) -> String {
       result = result + text + "\n"
     }
   }
-  if count == 0 { "no matches in " + path } else { count.to_string() + " matches in " + path + ":\n" + result }
+  if count == 0 {
+    "no matches in " + path
+  } else {
+    count.to_string() + " matches in " + path + ":\n" + result
+  }
 }
 
 ///|
 pub fn grep_tool_json(input : String) -> String {
   let pattern = extract_field(input, "pattern").unwrap_or("")
   let path = extract_field(input, "path").unwrap_or(".")
-  if pattern == "" { return "error: missing 'pattern'" }
+  if pattern == "" {
+    return "error: missing 'pattern'"
+  }
   grep_tool(pattern, path)
 }
 
 ///|
 pub fn grep_tool_def() -> @core.ToolDefinition {
-  @core.ToolDefinition::create("grep", "Search for a pattern in a file (case-insensitive)", "{type:object,properties:{pattern:{type:string},path:{type:string}}}", false)
+  @core.ToolDefinition::create(
+    "grep", "Search for a pattern in a file (case-insensitive)", "{type:object,properties:{pattern:{type:string},path:{type:string}}}",
+    false,
+  )
 }

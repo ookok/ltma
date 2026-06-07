@@ -10,13 +10,15 @@ pub struct AsyncHostAdapter {
 }
 
 ///|
-pub fn AsyncHostAdapter::new(handle : @core.AsyncAgentHandle) -> AsyncHostAdapter {
+pub fn AsyncHostAdapter::new(
+  handle : @core.AsyncAgentHandle,
+) -> AsyncHostAdapter {
   let meta = handle.metadata()
   { agent_id: meta.id, handle, meta, st: @core.AgentStatus::new_st() }
 }
 
 ///|
-pub async fn AsyncHostAdapter::initialize(
+pub fn AsyncHostAdapter::initialize(
   self : AsyncHostAdapter,
   ctx : @core.AgentContext,
 ) -> Unit {

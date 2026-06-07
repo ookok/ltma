@@ -7,10 +7,17 @@ import {
   "livingtree/ltma/llm",
   "livingtree/ltma/memory",
   "livingtree/ltma/orchestration",
+  "livingtree/ltma/storage",
   "livingtree/ltma/tool",
 }
 
 // Values
+pub fn create_async_chat_agent(@llm.AsyncLLMProviderHandle, @tool.ToolRegistry) -> @core.AsyncAgentHandle
+
+pub fn create_async_chat_agent_with_memory(@llm.AsyncLLMProviderHandle, @tool.ToolRegistry, @storage.SessionStore, String) -> @core.AsyncAgentHandle
+
+pub fn create_async_code_agent(@llm.AsyncLLMProviderHandle, @tool.ToolRegistry, String) -> @core.AsyncAgentHandle
+
 pub fn create_chat_agent_handle(@llm.LLMProviderHandle, @tool.ToolRegistry) -> @core.AgentHandle
 
 pub fn create_chat_agent_handle_with_memory(@llm.LLMProviderHandle, @tool.ToolRegistry, @memory.SessionManager, String) -> @core.AgentHandle
@@ -20,6 +27,8 @@ pub fn create_code_agent_handle(@llm.LLMProviderHandle, @tool.ToolRegistry, Stri
 pub fn create_knowledge_agent_handle(@llm.LLMProviderHandle, @tool.ToolRegistry, @memory.KnowledgeGraph, @memory.KeywordIndex) -> @core.AgentHandle
 
 pub fn create_orchestrator_agent_handle(@llm.LLMProviderHandle, @tool.ToolRegistry, @host.AgentHost, @orchestration.AgentRouter) -> @core.AgentHandle
+
+pub fn create_rag_agent(@llm.AsyncLLMProviderHandle, @memory.VectorStore, @memory.EmbeddingProviderHandle, @memory.KnowledgeGraph) -> @core.AsyncAgentHandle
 
 pub fn create_research_agent_handle(@llm.LLMProviderHandle, @tool.ToolRegistry, @memory.KnowledgeGraph, @memory.KeywordIndex) -> @core.AgentHandle
 

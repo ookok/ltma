@@ -1,3 +1,4 @@
 import {
   "livingtree/ltma/core",
+  "moonbitlang/async",
 }

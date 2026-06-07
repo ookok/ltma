@@ -1,0 +1,97 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "livingtree/ltma/prompt"
+
+import {
+  "livingtree/ltma/llm",
+  "livingtree/ltma/tool",
+}
+
+// Values
+pub fn code_system_prompt(String) -> String
+
+pub fn default_system_prompt() -> String
+
+pub fn history_context(Array[String]) -> String
+
+pub fn knowledge_context(Array[String]) -> String
+
+pub fn research_system_prompt() -> String
+
+pub fn tool_context_prompt(@tool.ToolRegistry) -> String
+
+// Errors
+
+// Types and methods
+pub struct PromptBuilder {
+  entries : Array[PromptEntry]
+  system_prompt : String
+  vars : Map[String, String]
+}
+pub fn PromptBuilder::add_assistant(Self, String) -> Self
+pub fn PromptBuilder::add_system(Self, String) -> Self
+pub fn PromptBuilder::add_tool(Self, String) -> Self
+pub fn PromptBuilder::add_user(Self, String) -> Self
+pub fn PromptBuilder::build(Self) -> Array[@llm.ChatMessage]
+pub fn PromptBuilder::new(String) -> Self
+pub fn PromptBuilder::with_var(Self, String, String) -> Self
+
+pub struct PromptEntry {
+  role : PromptRole
+  content : String
+}
+pub fn PromptEntry::new(PromptRole, String) -> Self
+
+pub struct PromptRegistry {
+  entries : Map[String, PromptTemplate]
+}
+pub fn PromptRegistry::count(Self) -> Int
+pub fn PromptRegistry::latest(Self, String) -> PromptTemplate?
+pub fn PromptRegistry::list(Self, String) -> Array[PromptTemplate]
+pub fn PromptRegistry::new() -> Self
+pub fn PromptRegistry::register(Self, PromptTemplate) -> Unit
+pub fn PromptRegistry::remove(Self, String, String) -> Unit
+pub fn PromptRegistry::resolve(Self, String, String) -> PromptTemplate?
+
+pub enum PromptRole {
+  System
+  User
+  Assistant
+  Tool
+}
+
+pub struct PromptTemplate {
+  name : String
+  version : String
+  template : String
+  variables : Array[String]
+  description : String
+}
+pub fn PromptTemplate::new(String, String, String, Array[String], String) -> Self
+pub fn PromptTemplate::render(Self, Map[String, String]) -> String?
+
+pub struct SimpleTemplate {
+  template : String
+}
+pub fn SimpleTemplate::new(String) -> Self
+pub fn SimpleTemplate::render(Self, Map[String, String]) -> String
+
+pub struct Skill {
+  name : String
+  description : String
+  content : String
+}
+pub fn Skill::new(String, String, String) -> Self
+
+pub struct SkillRegistry {
+  skills : Map[String, Skill]
+}
+pub fn SkillRegistry::list(Self) -> Array[String]
+pub fn SkillRegistry::load(Self, String) -> Skill?
+pub fn SkillRegistry::new() -> Self
+pub fn SkillRegistry::register(Self, Skill) -> Unit
+pub fn SkillRegistry::to_context(Self) -> String
+
+// Type aliases
+
+// Traits
+

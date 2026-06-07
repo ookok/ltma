@@ -3,7 +3,7 @@
 
 ///|
 fn main {
-  let host = setup_host()
+  let _host = setup_host()
   let html = load_html()
   println("LTMA Desktop — http://localhost:9090")
   @async.run_async_main(async fn() {
@@ -25,7 +25,9 @@ fn main {
 
 ///|
 fn load_html() -> String {
-  try { @xfs.read_file_to_string("web/public/index.html") } catch { _ => "<h1>LTMA</h1>" }
+  @xfs.read_file_to_string("web/public/index.html") catch {
+    _ => "<h1>LTMA</h1>"
+  }
 }
 
 ///|
@@ -33,13 +35,30 @@ fn setup_host() -> @host.AgentHost {
   let host = @host.AgentHost::new()
   let reg = @tool.ToolRegistry::new()
   @builtin.register_builtins(reg)
-  host.register(@agent.create_metadata("echo","Echo",["echo"]), fn() {
-    let b = @agent.AgentBase::new(@agent.create_metadata("echo","Echo",["echo"]))
-    @core.make_handle(b,fn(a){a.id()},fn(a){a.metadata()},fn(a,c){a.initialize(c)},
-      fn(a,i){if i.is_text(){@core.Message::text("[Echo] "+i.get_text())}else{a.run(i)}},
-      fn(a){a.shutdown()},fn(a){a.status()},fn(a,c){a.execute_tool(c)})
+  host.register(@agent.create_metadata("echo", "Echo", ["echo"]), fn() {
+    let b = @agent.AgentBase::new(
+      @agent.create_metadata("echo", "Echo", ["echo"]),
+    )
+    @core.make_handle(
+      b,
+      fn(a) { a.id() },
+      fn(a) { a.metadata() },
+      fn(a, c) { a.initialize(c) },
+      fn(a, i) {
+        if i.is_text() {
+          @core.Message::text("[Echo] " + i.get_text())
+        } else {
+          a.run(i)
+        }
+      },
+      fn(a) { a.shutdown() },
+      fn(a) { a.status() },
+      fn(a, c) { a.execute_tool(c) },
+    )
   })
   let p = @llm.create_mock_provider("Hello from LTMA Desktop!")
-  host.register(@agent.create_metadata("chat","Chat",["chat"]), fn() { @agents.create_chat_agent_handle(p, reg) })
+  host.register(@agent.create_metadata("chat", "Chat", ["chat"]), fn() {
+    @agents.create_chat_agent_handle(p, reg)
+  })
   host
 }

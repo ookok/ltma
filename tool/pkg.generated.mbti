@@ -31,10 +31,19 @@ pub fn PermissionMatrix::deny(Self, String, String) -> Unit
 pub fn PermissionMatrix::new(ToolPermission) -> Self
 pub fn PermissionMatrix::set_default(Self, ToolPermission) -> Unit
 
+pub struct SandboxedResult {
+  output : String
+  allowed : Bool
+  blocked_reason : String?
+}
+pub fn SandboxedResult::allowed(String) -> Self
+pub fn SandboxedResult::blocked(String) -> Self
+
 pub struct ToolEntry {
   def : @core.ToolDefinition
   execute_fn : (String) -> String
 }
+pub fn ToolEntry::create(@core.ToolDefinition, (String) -> String) -> Self
 
 pub enum ToolPermission {
   Allowed
@@ -50,6 +59,26 @@ pub fn ToolRegistry::list_defs(Self) -> Array[@core.ToolDefinition]
 pub fn ToolRegistry::new() -> Self
 pub fn ToolRegistry::register(Self, @core.ToolDefinition, (String) -> String) -> Unit
 pub fn ToolRegistry::resolve(Self, String) -> ToolEntry?
+
+pub struct ToolSandbox {
+  registry : ToolRegistry
+  mut call_count : Int
+  max_calls : Int
+  timeout_ms : Int
+  allowed_tools : Array[String]
+  denied_tools : Array[String]
+  mut allowed_path_prefix : String?
+  audit_log : Array[String]
+}
+pub fn ToolSandbox::allow_tool(Self, String) -> Unit
+pub fn ToolSandbox::audit(Self) -> Array[String]
+pub fn ToolSandbox::deny_tool(Self, String) -> Unit
+pub fn ToolSandbox::execute(Self, String, String) -> SandboxedResult
+pub fn ToolSandbox::new(ToolRegistry) -> Self
+pub fn ToolSandbox::remaining(Self) -> Int
+pub fn ToolSandbox::reset_count(Self) -> Unit
+pub fn ToolSandbox::restrict_path(Self, String) -> Unit
+pub fn ToolSandbox::with_limits(ToolRegistry, Int, Int) -> Self
 
 // Type aliases
 

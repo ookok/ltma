@@ -32,13 +32,13 @@ pub fn parse_embedding_response(body : String) -> Array[Double]? {
       let closing = after.find("]")
       match closing {
         Some(end) => {
-          let nums_str = after.sub(start=0, end=end).to_owned()
+          let nums_str = after.sub(start=0, end~).to_owned()
           let parts = nums_str.split(",")
           let result : Array[Double] = []
           for p in parts {
             let trimmed = p.trim().to_owned()
             if trimmed != "" {
-              let val = try { @string.parse_double(trimmed) } catch { _ => 0.0 }
+              let val = @string.parse_double(trimmed) catch { _ => 0.0 }
               result.push(val)
             }
           }

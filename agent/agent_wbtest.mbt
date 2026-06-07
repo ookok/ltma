@@ -2,9 +2,9 @@
 test "AgentSession session management" {
   let id = @core.AgentId::create("test", "1.0", "test-pkg")
   let ctx = AgentSession::new(id)
-  assert_eq(ctx.session(), "")
+  @debug.assert_eq(ctx.session(), "")
   ctx.set_session("sess-1")
-  assert_eq(ctx.session(), "sess-1")
+  @debug.assert_eq(ctx.session(), "sess-1")
 }
 
 ///|
@@ -13,9 +13,9 @@ test "AgentSession params" {
   let ctx = AgentSession::new(id)
   ctx.set_param("key1", "value1")
   let v = ctx.get_param("key1")
-  assert_eq(v, Some("value1"))
+  @debug.assert_eq(v, Some("value1"))
   let missing = ctx.get_param("nonexistent")
-  assert_eq(missing, None)
+  @debug.assert_eq(missing, None)
 }
 
 ///|
@@ -23,7 +23,7 @@ test "AgentSession variables" {
   let id = @core.AgentId::create("test", "1.0", "test-pkg")
   let ctx = AgentSession::new(id)
   ctx.set_var("var1", "val1")
-  assert_eq(ctx.get_var("var1"), Some("val1"))
+  @debug.assert_eq(ctx.get_var("var1"), Some("val1"))
 }
 
 ///|
@@ -50,11 +50,11 @@ test "AgentRegistry register and resolve" {
     )
   }
   reg.register(meta, factory)
-  assert_eq(reg.count(), 1)
+  @debug.assert_eq(reg.count(), 1)
   let resolved = reg.resolve(@core.AgentId::create("test", "1.0", "test-pkg"))
   assert_true(resolved is Some(_))
   reg.unregister(@core.AgentId::create("test", "1.0", "test-pkg"))
-  assert_eq(reg.count(), 0)
+  @debug.assert_eq(reg.count(), 0)
 }
 
 ///|
@@ -81,7 +81,7 @@ test "AgentRegistry list" {
     )
   })
   let list = reg.list()
-  assert_eq(list.length(), 1)
+  @debug.assert_eq(list.length(), 1)
 }
 
 ///|

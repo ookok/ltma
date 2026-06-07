@@ -26,7 +26,13 @@ pub struct RateLimiter {
 
 ///|
 pub fn RateLimiter::new(max_tokens : Int, refill_per_sec : Int) -> RateLimiter {
-  { tokens: max_tokens, max_tokens, refill_rate: refill_per_sec, refill_interval_ms: 1000, last_refill_ms: 0L }
+  {
+    tokens: max_tokens,
+    max_tokens,
+    refill_rate: refill_per_sec,
+    refill_interval_ms: 1000,
+    last_refill_ms: 0L,
+  }
 }
 
 ///|
@@ -59,7 +65,9 @@ pub fn with_retry(
       let mut last_error = ""
       for i = 0; i <= config.max_retries; i = i + 1 {
         if i > 0 {
-          let delay = (config.base_delay_ms * (1 << (i - 1))).min(config.max_delay_ms)
+          let delay = (config.base_delay_ms * (1 << (i - 1))).min(
+            config.max_delay_ms,
+          )
           @async.sleep(delay)
         }
         let resp = inner.chat(messages, tools)
@@ -69,8 +77,13 @@ pub fn with_retry(
         last_error = resp.content
       }
       LLMResponse::{
-        content: "retry failed after " + config.max_retries.to_string() + " attempts: " + last_error,
-        tool_calls: None, finish_reason: "error", usage: None,
+        content: "retry failed after " +
+        config.max_retries.to_string() +
+        " attempts: " +
+        last_error,
+        tool_calls: None,
+        finish_reason: "error",
+        usage: None,
       }
     },
   }

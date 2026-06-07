@@ -8,8 +8,12 @@ import {
   "livingtree/ltma/agents",
   "moonbitlang/async",
   "moonbitlang/async/http" @async_http,
-  "moonbitlang/async/socket" @socket,
+  "moonbitlang/async/socket",
   "moonbitlang/x/fs" @xfs,
 }
 
-options("is-main": true, "supported-targets": "native")
+supported_targets = "native"
+
+options(
+  "is-main": true,
+)

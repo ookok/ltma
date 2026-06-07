@@ -10,5 +10,8 @@ pub fn webfetch_tool(url : String) -> String {
 
 ///|
 pub fn webfetch_tool_def() -> @core.ToolDefinition {
-  @core.ToolDefinition::create("webfetch", "Fetch a URL and return its text content", "{type:object,properties:{url:{type:string}}}", false)
+  @core.ToolDefinition::create(
+    "webfetch", "Fetch a URL and return its text content", "{type:object,properties:{url:{type:string}}}",
+    false,
+  )
 }

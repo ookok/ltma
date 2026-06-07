@@ -1,6 +1,6 @@
 ///|
-test "PromptTemplate renders variables" {
-  let t = PromptTemplate::new("Hello {name}, you are {role}.")
+test "SimpleTemplate renders variables" {
+  let t = SimpleTemplate::new("Hello {name}, you are {role}.")
   let result = t.render(Map([("name", "Alice"), ("role", "admin")]))
   assert_eq(result, "Hello Alice, you are admin.")
 }
@@ -8,9 +8,9 @@ test "PromptTemplate renders variables" {
 ///|
 test "PromptBuilder builds messages" {
   let pb = PromptBuilder::new("System: You are {name}.")
-        .with_var("name", "Bot")
-        .add_user("Hello!")
-        .add_assistant("Hi there!")
+    .with_var("name", "Bot")
+    .add_user("Hello!")
+    .add_assistant("Hi there!")
   let msgs = pb.build()
   assert_eq(msgs.length(), 3)
   assert_eq(msgs[0].content, "System: You are Bot.")
@@ -30,10 +30,11 @@ test "SkillRegistry register and list" {
 ///|
 test "Tool context prompt" {
   let reg = @tool.ToolRegistry::new()
-  reg.register(
-    @core.ToolDefinition::create("echo", "Echo back", "", false),
-    fn(i) { i },
-  )
+  reg.register(@core.ToolDefinition::create("echo", "Echo back", "", false), fn(
+    i,
+  ) {
+    i
+  })
   let ctx = tool_context_prompt(reg)
   assert_true(ctx.contains("echo"))
   assert_true(ctx.contains("Echo"))

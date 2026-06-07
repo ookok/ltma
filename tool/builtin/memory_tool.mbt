@@ -2,7 +2,7 @@
 /// Memory tool — in-context key-value storage for agents.
 
 ///|
-pub fn mem_store(key : String, value : String) -> String {
+pub fn mem_store(key : String, _value : String) -> String {
   "stored: " + key
 }
 
@@ -32,5 +32,8 @@ fn mem_recall_json(input : String) -> String {
 
 ///|
 pub fn mem_tool_def(name : String, desc : String) -> @core.ToolDefinition {
-  @core.ToolDefinition::create(name, desc, "{type:object,properties:{key:{type:string},value:{type:string}}}", false)
+  @core.ToolDefinition::create(
+    name, desc, "{type:object,properties:{key:{type:string},value:{type:string}}}",
+    false,
+  )
 }

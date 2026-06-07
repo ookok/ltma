@@ -21,7 +21,12 @@ pub fn debate(
         a.shutdown()
         let text = if r.is_text() { r.get_text() } else { "" }
         transcript.push((agent_a, text))
-        prompt = agent_a + " said: " + text + ". " + agent_b + ", please respond."
+        prompt = agent_a +
+          " said: " +
+          text +
+          ". " +
+          agent_b +
+          ", please respond."
       }
       None => ()
     }
@@ -31,7 +36,12 @@ pub fn debate(
         b.shutdown()
         let text = if r.is_text() { r.get_text() } else { "" }
         transcript.push((agent_b, text))
-        prompt = agent_b + " said: " + text + ". " + agent_a + ", please respond."
+        prompt = agent_b +
+          " said: " +
+          text +
+          ". " +
+          agent_a +
+          ", please respond."
       }
       None => ()
     }
@@ -71,7 +81,9 @@ pub fn vote(
 fn format_choices(choices : Array[String]) -> String {
   let mut result = ""
   for i = 0; i < choices.length(); i = i + 1 {
-    if i > 0 { result = result + ", " }
+    if i > 0 {
+      result = result + ", "
+    }
     result = result + (i + 1).to_string() + ". " + choices[i]
   }
   result

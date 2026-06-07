@@ -2,20 +2,22 @@
 /// Prompt template engine — variable substitution and structured prompts.
 
 ///|
-/// A prompt template with `{variable}` placeholders.
-pub struct PromptTemplate {
+/// A simple template string with `{variable}` placeholders.
+pub struct SimpleTemplate {
   template : String
 }
 
 ///|
-pub fn PromptTemplate::new(template : String) -> PromptTemplate {
-  { template }
+pub fn SimpleTemplate::new(template : String) -> SimpleTemplate {
+  { template, }
 }
 
 ///|
 /// Render the template by substituting variables.
-/// Variables are provided as key-value pairs.
-pub fn PromptTemplate::render(self : PromptTemplate, vars : Map[String, String]) -> String {
+pub fn SimpleTemplate::render(
+  self : SimpleTemplate,
+  vars : Map[String, String],
+) -> String {
   let mut result = self.template
   for k, v in vars {
     result = result.replace(old="{" + k + "}", new=v)
@@ -105,9 +107,7 @@ pub fn PromptBuilder::add_tool(
 
 ///|
 /// Build the final message array.
-pub fn PromptBuilder::build(
-  self : PromptBuilder,
-) -> Array[@llm.ChatMessage] {
+pub fn PromptBuilder::build(self : PromptBuilder) -> Array[@llm.ChatMessage] {
   let messages : Array[@llm.ChatMessage] = []
   let system = resolve_template(self.system_prompt, self.vars)
   messages.push(@llm.ChatMessage::new(@llm.ChatRole::system(), system))

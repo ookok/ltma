@@ -7,7 +7,11 @@ import {
 }
 
 // Values
+pub fn debate(@host.AgentHost, String, String, String, Int) -> Array[(String, String)]
+
 pub fn execute_workflow(Workflow, @host.AgentHost, String, AgentRouter?) -> Array[String]
+
+pub fn vote(@host.AgentHost, String, Array[String]) -> Map[String, Int]
 
 // Errors
 
@@ -25,6 +29,28 @@ pub fn AgentRouter::new() -> Self
 pub fn AgentRouter::register(Self, String, Array[String]) -> Unit
 pub fn AgentRouter::route(Self, String) -> String?
 
+pub struct DagExecutor {
+  host : @host.AgentHost
+}
+pub fn DagExecutor::execute(Self, DagPipeline, String) -> Map[String, String]
+pub fn DagExecutor::new(@host.AgentHost) -> Self
+
+pub struct DagNode {
+  name : String
+  agent_name : String
+  depends_on : Array[String]
+}
+pub fn DagNode::new(String, String, Array[String]) -> Self
+
+pub struct DagPipeline {
+  nodes : Map[String, DagNode]
+  mut entry_points : Array[String]
+}
+pub fn DagPipeline::add_node(Self, DagNode) -> Unit
+pub fn DagPipeline::get_node(Self, String) -> DagNode?
+pub fn DagPipeline::new() -> Self
+pub fn DagPipeline::topological_order(Self) -> Array[String]
+
 pub struct HandoffDef {
   from : String
   to : String
@@ -40,6 +66,21 @@ pub fn Planner::new(AgentRouter) -> Self
 pub fn Planner::plan(Self, String) -> Workflow
 pub fn Planner::plan_with_llm(Self, String) -> Workflow
 pub fn Planner::with_llm(Self, @llm.LLMProviderHandle) -> Self
+
+pub struct Plugin {
+  name : String
+  version : String
+  description : String
+}
+pub fn Plugin::new(String, String, String) -> Self
+
+pub struct PluginRegistry {
+  plugins : Map[String, Plugin]
+}
+pub fn PluginRegistry::count(Self) -> Int
+pub fn PluginRegistry::list(Self) -> Array[Plugin]
+pub fn PluginRegistry::new() -> Self
+pub fn PluginRegistry::register(Self, Plugin) -> Unit
 
 pub struct StepDef {
   kind : Int

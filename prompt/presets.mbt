@@ -14,7 +14,9 @@ pub fn default_system_prompt() -> String {
 ///|
 /// Code assistant system prompt.
 pub fn code_system_prompt(workspace : String) -> String {
-  "You are an expert programming assistant. Your workspace is " + workspace + ". " +
+  "You are an expert programming assistant. Your workspace is " +
+  workspace +
+  ". " +
   "You can read, write, and edit files using the available tools. " +
   "Provide clear, well-commented code following best practices. " +
   "When writing code, explain your approach first, then implement. " +
@@ -35,7 +37,9 @@ pub fn research_system_prompt() -> String {
 /// Tool description prompt — generates a summary of available tools.
 pub fn tool_context_prompt(registry : @tool.ToolRegistry) -> String {
   let defs = registry.list_defs()
-  if defs.length() == 0 { return "" }
+  if defs.length() == 0 {
+    return ""
+  }
   let mut result = "Available tools:\n"
   for d in defs {
     result = result + "- " + d.name + ": " + d.description + "\n"
@@ -46,7 +50,9 @@ pub fn tool_context_prompt(registry : @tool.ToolRegistry) -> String {
 ///|
 /// Format conversation history for context injection.
 pub fn history_context(messages : Array[String]) -> String {
-  if messages.length() == 0 { return "" }
+  if messages.length() == 0 {
+    return ""
+  }
   let mut result = "Conversation history:\n"
   for i = 0; i < messages.length(); i = i + 1 {
     let role = if i % 2 == 0 { "User" } else { "Assistant" }
@@ -58,7 +64,9 @@ pub fn history_context(messages : Array[String]) -> String {
 ///|
 /// Knowledge base context prompt.
 pub fn knowledge_context(results : Array[String]) -> String {
-  if results.length() == 0 { return "" }
+  if results.length() == 0 {
+    return ""
+  }
   let mut result = "Relevant context from knowledge base:\n"
   for i = 0; i < results.length(); i = i + 1 {
     result = result + (i + 1).to_string() + ". " + results[i] + "\n"

@@ -66,6 +66,13 @@ pub enum LifecycleEvent {
   AfterShutdown
   OnError(String)
 }
+pub fn LifecycleEvent::after_init() -> Self
+pub fn LifecycleEvent::after_run() -> Self
+pub fn LifecycleEvent::after_shutdown() -> Self
+pub fn LifecycleEvent::before_init() -> Self
+pub fn LifecycleEvent::before_run() -> Self
+pub fn LifecycleEvent::before_shutdown() -> Self
+pub fn LifecycleEvent::on_error(String) -> Self
 
 pub struct LifecycleHooks {
   hooks : Array[(LifecycleEvent, @core.AgentId) -> Unit]

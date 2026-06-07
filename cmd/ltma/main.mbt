@@ -12,23 +12,35 @@ fn main {
     Command::ListProviders => cmd_list_providers()
     Command::Run(agent, msg) => cmd_run(agent, msg)
     Command::Chat => cmd_chat()
-    Command::AsyncChat(provider_str, model_str, api_key) => cmd_async_chat(provider_str, model_str, api_key)
+    Command::AsyncChat(provider_str, model_str, api_key) =>
+      cmd_async_chat(provider_str, model_str, api_key)
   }
 }
 
 ///|
 /// Run an async chat with session memory.
-fn cmd_async_chat(provider_str : String, model_str : String, api_key : String) -> Unit {
-  println("Connecting to \{provider_str} (model: \{if model_str != "" { model_str } else { "default" }})...")
+fn cmd_async_chat(
+  provider_str : String,
+  model_str : String,
+  api_key : String,
+) -> Unit {
+  println(
+    "Connecting to \{provider_str} (model: \{if model_str != "" { model_str } else { "default" }})...",
+  )
   @async.run_async_main(async fn() {
     match @llm.create_provider(provider_str, model_str, api_key) {
       Some(provider) => {
         let registry = @tool.ToolRegistry::new()
         @builtin.register_builtins(registry)
 
-        let session = try { Some(@storage.SessionStore::open("ltma_sessions.db")) } catch { _ => None }
+        let session = Some(@storage.SessionStore::open("ltma_sessions.db")) catch {
+          _ => None
+        }
         let agent = match session {
-          Some(s) => @agents.create_async_chat_agent_with_memory(provider, registry, s, "default")
+          Some(s) =>
+            @agents.create_async_chat_agent_with_memory(
+              provider, registry, s, "default",
+            )
           None => @agents.create_async_chat_agent(provider, registry)
         }
 
@@ -44,7 +56,10 @@ fn cmd_async_chat(provider_str : String, model_str : String, api_key : String) -
         }
         agent.shutdown()
       }
-      None => println("Unknown provider: '\{provider_str}'. Use 'ltma providers' to list supported providers.")
+      None =>
+        println(
+          "Unknown provider: '\{provider_str}'. Use 'ltma providers' to list supported providers.",
+        )
     }
   })
 }
@@ -109,8 +124,7 @@ fn setup_host() -> @host.AgentHost {
     "models/minilm-l6-v2/model.int8.onnx"
   }
   let embed_provider = @embedding.create_onnx_provider(
-    model_file,
-    "models/minilm-l6-v2/vocab.txt",
+    model_file, "models/minilm-l6-v2/vocab.txt",
   )
   let echo_meta = @agent.create_metadata("echo", "Simple echo agent", ["echo"])
   host.register(echo_meta, echo_handle)

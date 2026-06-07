@@ -8,6 +8,14 @@ pub struct ToolEntry {
 }
 
 ///|
+pub fn ToolEntry::create(
+  def : @core.ToolDefinition,
+  execute_fn : (String) -> String,
+) -> ToolEntry {
+  { def, execute_fn }
+}
+
+///|
 pub struct ToolRegistry {
   entries : Map[String, ToolEntry]
 }

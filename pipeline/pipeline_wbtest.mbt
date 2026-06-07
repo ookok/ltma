@@ -27,9 +27,9 @@ fn make_echo_handle() -> @core.AgentHandle {
 }
 
 ///|
-test "AgentAdapter delegate to handle" {
+test "AddInSideAdapter delegate to handle" {
   let handle = make_echo_handle()
-  let adapter = AgentAdapter::new(handle)
+  let adapter = AddInSideAdapter::new(handle)
   let ctx = @core.AgentContext::new(
     @core.AgentId::create("echo", "0.1.0", "test"),
   )
@@ -40,9 +40,9 @@ test "AgentAdapter delegate to handle" {
 }
 
 ///|
-test "AgentAdapter status tracking" {
+test "AddInSideAdapter status tracking" {
   let handle = make_echo_handle()
-  let adapter = AgentAdapter::new(handle)
+  let adapter = AddInSideAdapter::new(handle)
   let ctx = @core.AgentContext::new(
     @core.AgentId::create("echo", "0.1.0", "test"),
   )
@@ -92,4 +92,41 @@ test "create_sandbox maps isolation level" {
   assert_true(wasm.config().kind is SandboxKind::Wasm)
   let proc = create_sandbox(@core.IsolationLevel::process())
   assert_true(proc.config().kind is SandboxKind::Process)
+}
+
+///|
+test "HostSideAdapter delegates to contract" {
+  let meta = @core.AgentMetadata::create(
+    @core.AgentId::create("test", "0.1.0", "test"),
+    "test",
+    ["test"],
+    @core.IsolationLevel::in_process(),
+    @core.Target::native(),
+    "0.1.0",
+  )
+  let contract = @core.ContractHandle::create(
+    fn(_) {  },
+    fn(input) { @core.Message::text("echo: " + input.get_text()) },
+    fn() {  },
+    fn() { @core.AgentStatus::idle() },
+    fn(call) { @core.ToolResult::create(call.id, false, "", None) },
+  )
+  let host = HostSideAdapter::new(contract, meta)
+  let ctx = @core.AgentContext::new(
+    @core.AgentId::create("test", "0.1.0", "test"),
+  )
+  host.initialize(ctx)
+  let resp = host.call(@core.Message::text("ping"))
+  assert_true(resp.is_text())
+  host.shutdown()
+}
+
+///|
+test "AddInSideAdapter to_contract round-trip" {
+  let handle = make_echo_handle()
+  let adapter = AddInSideAdapter::new(handle)
+  let contract = adapter.to_contract()
+  let msg = @core.Message::text("hello")
+  let resp = contract.run(msg)
+  assert_true(resp.is_text())
 }

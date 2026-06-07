@@ -36,15 +36,33 @@ pub fn register_builtins(reg : @tool.ToolRegistry) -> Unit {
   reg.register(random_tool_def(), fn(_) { random_number(100).to_string() })
 
   // Encoding
-  reg.register(codec_tool_def("base64_encode", "Encode a string to base64"), base64_encode)
-  reg.register(codec_tool_def("base64_decode", "Decode a base64 string"), base64_decode)
-  reg.register(codec_tool_def("json_format", "Format and validate a JSON string"), json_format)
+  reg.register(
+    codec_tool_def("base64_encode", "Encode a string to base64"),
+    base64_encode,
+  )
+  reg.register(
+    codec_tool_def("base64_decode", "Decode a base64 string"),
+    base64_decode,
+  )
+  reg.register(
+    codec_tool_def("json_format", "Format and validate a JSON string"),
+    json_format,
+  )
   reg.register(codec_tool_def("uuid", "Generate a UUID v4"), uuid_gen)
-  reg.register(codec_tool_def("hash", "Compute a hash of the input"), hash_compute)
+  reg.register(
+    codec_tool_def("hash", "Compute a hash of the input"),
+    hash_compute,
+  )
 
   // Agent memory
-  reg.register(mem_tool_def("mem_store", "Store a value in agent memory"), mem_store_json)
-  reg.register(mem_tool_def("mem_recall", "Recall a value from agent memory"), mem_recall_json)
+  reg.register(
+    mem_tool_def("mem_store", "Store a value in agent memory"),
+    mem_store_json,
+  )
+  reg.register(
+    mem_tool_def("mem_recall", "Recall a value from agent memory"),
+    mem_recall_json,
+  )
 
   // File search
   reg.register(grep_tool_def(), grep_tool_json)
@@ -63,13 +81,22 @@ pub fn register_builtins(reg : @tool.ToolRegistry) -> Unit {
   // Knowledge
   reg.register(skill_tool_def(), skill_tool_json)
 
+  // Git
+  reg.register(git_tool_def(), git_tool_json)
+
   // Demo
   reg.register(
-    @core.ToolDefinition::create("echo", "Echo input back", "{type:object,properties:{input:{type:string}}}", false),
+    @core.ToolDefinition::create(
+      "echo", "Echo input back", "{type:object,properties:{input:{type:string}}}",
+      false,
+    ),
     fn(input) { "echo: \{input}" },
   )
   reg.register(
-    @core.ToolDefinition::create("greet", "Greet with a name", "{type:object,properties:{name:{type:string}}}", false),
+    @core.ToolDefinition::create(
+      "greet", "Greet with a name", "{type:object,properties:{name:{type:string}}}",
+      false,
+    ),
     fn(input) { "Hello, \{input}!" },
   )
 }

@@ -19,7 +19,9 @@ pub fn create_async_chat_agent(
   let defs = registry.list_defs()
   for i = 0; i < defs.length(); i = i + 1 {
     let d = defs[i]
-    tool_defs.push(@llm.ChatToolDef::create(d.name, d.description, d.parameters, d.strict))
+    tool_defs.push(
+      @llm.ChatToolDef::create(d.name, d.description, d.parameters, d.strict),
+    )
   }
 
   @core.make_async_handle(
@@ -40,7 +42,9 @@ pub fn create_async_chat_agent(
       if !input.is_text() {
         return @core.Message::text("unsupported message type")
       }
-      messages.push(@llm.ChatMessage::new(@llm.ChatRole::user(), input.get_text()))
+      messages.push(
+        @llm.ChatMessage::new(@llm.ChatRole::user(), input.get_text()),
+      )
 
       // LLM call with tool definitions
       let resp = provider.chat(messages, Some(tool_defs))
@@ -56,9 +60,12 @@ pub fn create_async_chat_agent(
           // Execute each tool call
           for j = 0; j < calls.length(); j = j + 1 {
             let core_call = @core.ToolCall::create(
-              calls[j].id, calls[j].name, calls[j].arguments,
+              calls[j].id,
+              calls[j].name,
+              calls[j].arguments,
             )
-            let result_str = match registry.execute(core_call.name, core_call.arguments) {
+            let result_str = match
+              registry.execute(core_call.name, core_call.arguments) {
               Some(v) => v
               None => "error: tool '\{core_call.name}' not found"
             }
@@ -110,9 +117,13 @@ pub fn create_async_chat_agent_with_memory(
   )
 
   // Restore session history
-  let history = try { session.get_history(session_id) } catch { _ => [] }
+  let history = session.get_history(session_id) catch { _ => [] }
   for i = 0; i < history.length(); i = i + 1 {
-    let role = if i % 2 == 0 { @llm.ChatRole::user() } else { @llm.ChatRole::assistant() }
+    let role = if i % 2 == 0 {
+      @llm.ChatRole::user()
+    } else {
+      @llm.ChatRole::assistant()
+    }
     messages.push(@llm.ChatMessage::new(role, history[i]))
   }
 
@@ -120,7 +131,9 @@ pub fn create_async_chat_agent_with_memory(
   let defs = registry.list_defs()
   for i = 0; i < defs.length(); i = i + 1 {
     let d = defs[i]
-    tool_defs.push(@llm.ChatToolDef::create(d.name, d.description, d.parameters, d.strict))
+    tool_defs.push(
+      @llm.ChatToolDef::create(d.name, d.description, d.parameters, d.strict),
+    )
   }
 
   @core.make_async_handle(
@@ -138,33 +151,54 @@ pub fn create_async_chat_agent_with_memory(
     },
     fn(_, _ctx) { messages = [] },
     async fn(_, input) -> @core.Message {
-      if !input.is_text() { return @core.Message::text("unsupported") }
+      if !input.is_text() {
+        return @core.Message::text("unsupported")
+      }
       let user_text = input.get_text()
       messages.push(@llm.ChatMessage::new(@llm.ChatRole::user(), user_text))
-      try { session.add_message(session_id, "user", user_text) } catch { _ => () }
+      session.add_message(session_id, "user", user_text) catch {
+        _ => ()
+      }
 
       let resp = provider.chat(messages, Some(tool_defs))
       match resp.tool_calls {
         Some(calls) => {
           if resp.content != "" {
-            messages.push(@llm.ChatMessage::new(@llm.ChatRole::assistant(), resp.content))
+            messages.push(
+              @llm.ChatMessage::new(@llm.ChatRole::assistant(), resp.content),
+            )
           }
           for j = 0; j < calls.length(); j = j + 1 {
-            let core_call = @core.ToolCall::create(calls[j].id, calls[j].name, calls[j].arguments)
-            let result_str = match registry.execute(core_call.name, core_call.arguments) {
+            let core_call = @core.ToolCall::create(
+              calls[j].id,
+              calls[j].name,
+              calls[j].arguments,
+            )
+            let result_str = match
+              registry.execute(core_call.name, core_call.arguments) {
               Some(v) => v
               None => "error: tool '\{core_call.name}' not found"
             }
-            messages.push(@llm.ChatMessage::new(@llm.ChatRole::tool(), result_str))
+            messages.push(
+              @llm.ChatMessage::new(@llm.ChatRole::tool(), result_str),
+            )
           }
           let follow_up = provider.chat(messages, Some(tool_defs))
-          messages.push(@llm.ChatMessage::new(@llm.ChatRole::assistant(), follow_up.content))
-          try { session.add_message(session_id, "assistant", follow_up.content) } catch { _ => () }
+          messages.push(
+            @llm.ChatMessage::new(@llm.ChatRole::assistant(), follow_up.content),
+          )
+          session.add_message(session_id, "assistant", follow_up.content) catch {
+            _ => ()
+          }
           @core.Message::text(follow_up.content)
         }
         None => {
-          messages.push(@llm.ChatMessage::new(@llm.ChatRole::assistant(), resp.content))
-          try { session.add_message(session_id, "assistant", resp.content) } catch { _ => () }
+          messages.push(
+            @llm.ChatMessage::new(@llm.ChatRole::assistant(), resp.content),
+          )
+          session.add_message(session_id, "assistant", resp.content) catch {
+            _ => ()
+          }
           @core.Message::text(resp.content)
         }
       }
@@ -195,7 +229,9 @@ pub fn create_async_code_agent(
   let defs = registry.list_defs()
   for i = 0; i < defs.length(); i = i + 1 {
     let d = defs[i]
-    tool_defs.push(@llm.ChatToolDef::create(d.name, d.description, d.parameters, d.strict))
+    tool_defs.push(
+      @llm.ChatToolDef::create(d.name, d.description, d.parameters, d.strict),
+    )
   }
 
   @core.make_async_handle(
@@ -216,30 +252,43 @@ pub fn create_async_code_agent(
       if !input.is_text() {
         return @core.Message::text("unsupported message type")
       }
-      messages.push(@llm.ChatMessage::new(@llm.ChatRole::user(), input.get_text()))
+      messages.push(
+        @llm.ChatMessage::new(@llm.ChatRole::user(), input.get_text()),
+      )
 
       let resp = provider.chat(messages, Some(tool_defs))
       match resp.tool_calls {
         Some(calls) => {
           if resp.content != "" {
-            messages.push(@llm.ChatMessage::new(@llm.ChatRole::assistant(), resp.content))
+            messages.push(
+              @llm.ChatMessage::new(@llm.ChatRole::assistant(), resp.content),
+            )
           }
           for j = 0; j < calls.length(); j = j + 1 {
             let core_call = @core.ToolCall::create(
-              calls[j].id, calls[j].name, calls[j].arguments,
+              calls[j].id,
+              calls[j].name,
+              calls[j].arguments,
             )
-            let result_str = match registry.execute(core_call.name, core_call.arguments) {
+            let result_str = match
+              registry.execute(core_call.name, core_call.arguments) {
               Some(v) => v
               None => "error: tool '\{core_call.name}' not found"
             }
-            messages.push(@llm.ChatMessage::new(@llm.ChatRole::tool(), result_str))
+            messages.push(
+              @llm.ChatMessage::new(@llm.ChatRole::tool(), result_str),
+            )
           }
           let follow_up = provider.chat(messages, Some(tool_defs))
-          messages.push(@llm.ChatMessage::new(@llm.ChatRole::assistant(), follow_up.content))
+          messages.push(
+            @llm.ChatMessage::new(@llm.ChatRole::assistant(), follow_up.content),
+          )
           @core.Message::text(follow_up.content)
         }
         None => {
-          messages.push(@llm.ChatMessage::new(@llm.ChatRole::assistant(), resp.content))
+          messages.push(
+            @llm.ChatMessage::new(@llm.ChatRole::assistant(), resp.content),
+          )
           @core.Message::text(resp.content)
         }
       }
@@ -272,30 +321,50 @@ pub fn create_rag_agent(
         @core.AgentId::create("rag-agent", "0.1.0", "livingtree/ltma"),
         "RAG knowledge agent with vector search + knowledge graph",
         ["rag", "knowledge", "vector", "search", "async"],
-        @core.IsolationLevel::in_process(), @core.Target::native(), "0.1.0",
+        @core.IsolationLevel::in_process(),
+        @core.Target::native(),
+        "0.1.0",
       )
     },
     fn(_, _ctx) { messages = [] },
     async fn(_, input) -> @core.Message {
-      if !input.is_text() { return @core.Message::text("unsupported") }
+      if !input.is_text() {
+        return @core.Message::text("unsupported")
+      }
       let query = input.get_text()
       let results = vector_store.search(query, 3, embed_provider)
       let mut context = ""
       for i = 0; i < results.length(); i = i + 1 {
-        context = context + "[Doc] " + results[i].text + " (score:" + results[i].score.to_string() + ")\n"
+        context = context +
+          "[Doc] " +
+          results[i].text +
+          " (score:" +
+          results[i].score.to_string() +
+          ")\n"
       }
       let entities = kg.search_entities(query)
       for e in entities {
         context = context + "[KG] " + e.name + ": " + e.metadata + "\n"
       }
-      let augmented = if context != "" { "Context:\n" + context + "\nQuestion: " + query } else { query }
-      messages.push(@llm.ChatMessage::new(@llm.ChatRole::system(), "Answer based on retrieved context."))
+      let augmented = if context != "" {
+        "Context:\n" + context + "\nQuestion: " + query
+      } else {
+        query
+      }
+      messages.push(
+        @llm.ChatMessage::new(
+          @llm.ChatRole::system(),
+          "Answer based on retrieved context.",
+        ),
+      )
       messages.push(@llm.ChatMessage::new(@llm.ChatRole::user(), augmented))
       let resp = provider.chat(messages, None)
       @core.Message::text(resp.content)
     },
     fn(_) { messages = [] },
     fn(_) { @core.AgentStatus::idle() },
-    fn(_, _call) -> @core.ToolResult { @core.ToolResult::create("", false, "", None) },
+    fn(_, _call) -> @core.ToolResult {
+      @core.ToolResult::create("", false, "", None)
+    },
   )
 }

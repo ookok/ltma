@@ -137,7 +137,8 @@ fn extract_usage(body : String) -> TokenUsage? {
   let completion = extract_int_field(body, "\"completion_tokens\"")
   let total = extract_int_field(body, "\"total_tokens\"")
   match (prompt, completion, total) {
-    (Some(p), Some(c), Some(t)) => Some({ prompt_tokens: p, completion_tokens: c, total_tokens: t })
+    (Some(p), Some(c), Some(t)) =>
+      Some({ prompt_tokens: p, completion_tokens: c, total_tokens: t })
     _ => None
   }
 }
@@ -157,7 +158,11 @@ fn extract_int_field(json : String, field : String) -> Int? {
           break
         }
       }
-      if num_str != "" { Some(try { @string.parse_int(num_str) } catch { _ => 0 }) } else { None }
+      if num_str != "" {
+        Some(@string.parse_int(num_str) catch { _ => 0 })
+      } else {
+        None
+      }
     }
     None => None
   }
@@ -219,7 +224,9 @@ fn extract_tool_calls(body : String) -> Array[ChatToolCall]? {
 ///|
 /// Create an async provider handle for OpenAI-compatible API.
 /// Makes real HTTP calls via the async runtime.
-pub fn create_async_openai_provider(config : LLMConfig) -> AsyncLLMProviderHandle {
+pub fn create_async_openai_provider(
+  config : LLMConfig,
+) -> AsyncLLMProviderHandle {
   AsyncLLMProviderHandle::{
     config_fn: fn() { config },
     chat_fn: async fn(messages, tools) {

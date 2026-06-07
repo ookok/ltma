@@ -1,10 +1,17 @@
 name = "livingtree/ltma"
+
 version = "0.1.0"
+
 readme = "README.md"
+
 repository = "https://github.com/ookok/ltma"
+
 license = "Apache-2.0"
-keywords = ["ai", "agent", "framework", "llm", "moonbit"]
+
+keywords = [ "ai", "agent", "framework", "llm", "moonbit" ]
+
 description = "LivingTreeMoonBitAgent - A MAF-inspired AI Agent framework for MoonBit. Multi-provider LLM, tools, memory, RAG, and orchestration."
+
 preferred_target = "native"
 
 import {

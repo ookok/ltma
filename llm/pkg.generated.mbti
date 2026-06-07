@@ -2,15 +2,23 @@
 package "livingtree/ltma/llm"
 
 // Values
+pub fn all_providers() -> Array[ProviderInfo]
+
 pub fn build_chat_body(LLMConfig, Array[ChatMessage], Array[ChatToolDef]?) -> String
 
 pub async fn call_deepseek_api(LLMConfig, Array[ChatMessage]) -> String
 
 pub async fn call_openai_api(LLMConfig, Array[ChatMessage], Array[ChatToolDef]?) -> LLMResponse
 
+pub async fn chat_stream(LLMConfig, Array[ChatMessage], Array[ChatToolDef]?, (String) -> Unit) -> String
+
 pub fn check_input(String) -> SafetyVerdict
 
 pub fn check_output(String) -> SafetyVerdict
+
+pub fn create_async_openai_provider(LLMConfig) -> AsyncLLMProviderHandle
+
+pub fn create_async_provider(LLMConfig) -> AsyncLLMProviderHandle
 
 pub fn create_fallback_provider(Array[LLMProviderHandle]) -> LLMProviderHandle
 
@@ -18,13 +26,52 @@ pub fn create_mock_provider(String) -> LLMProviderHandle
 
 pub fn create_openai_provider(LLMConfig) -> LLMProviderHandle
 
+pub fn create_provider(String, String, String) -> AsyncLLMProviderHandle?
+
 pub fn create_safe_provider(LLMProviderHandle) -> LLMProviderHandle
 
+pub fn default_model(String) -> String?
+
+pub fn find_provider(String) -> ProviderInfo?
+
+pub async fn get_embedding(String, String, String, String) -> Array[Double]?
+
+pub fn list_providers() -> String
+
+pub fn make_config(String, String, String) -> LLMConfig
+
+pub fn openai_embedding_config(String) -> (String, String, String)
+
+pub fn parse_embedding_response(String) -> Array[Double]?
+
 pub fn parse_openai_response(String) -> LLMResponse
+
+pub fn quick_provider(String, String) -> AsyncLLMProviderHandle?
+
+pub fn with_rate_limit(AsyncLLMProviderHandle, RateLimiter) -> AsyncLLMProviderHandle
+
+pub fn with_retry(AsyncLLMProviderHandle, RetryConfig) -> AsyncLLMProviderHandle
 
 // Errors
 
 // Types and methods
+pub struct AsyncLLMProviderHandle {
+  config_fn : () -> LLMConfig
+  chat_fn : async (Array[ChatMessage], Array[ChatToolDef]?) -> LLMResponse
+}
+pub async fn AsyncLLMProviderHandle::chat(Self, Array[ChatMessage], Array[ChatToolDef]?) -> LLMResponse
+pub fn AsyncLLMProviderHandle::config(Self) -> LLMConfig
+
+pub struct CacheEntry {
+  request_hash : String
+  response : String
+  created_at : Int
+  ttl_ms : Int
+  mut hit_count : Int
+}
+pub fn CacheEntry::is_expired(Self) -> Bool
+pub fn CacheEntry::new(String, String, Int) -> Self
+
 pub struct ChatMessage {
   role : ChatRole
   content : String
@@ -58,11 +105,19 @@ pub struct CircuitBreaker {
   mut state : CircuitState
   mut failures : Int
   threshold : Int
+  recovery_timeout_ms : Int
+  mut last_failure_time : Int
+  half_open_max : Int
+  mut half_open_calls : Int
+  mut half_open_successes : Int
 }
+pub fn CircuitBreaker::allow_request(Self) -> Bool
 pub fn CircuitBreaker::is_open(Self) -> Bool
 pub fn CircuitBreaker::new(Int) -> Self
 pub fn CircuitBreaker::record_failure(Self) -> Unit
 pub fn CircuitBreaker::record_success(Self) -> Unit
+pub fn CircuitBreaker::reset(Self) -> Unit
+pub fn CircuitBreaker::state_name(Self) -> String
 
 pub enum CircuitState {
   Closed
@@ -85,8 +140,12 @@ pub struct LLMConfig {
   max_tokens : Int
   temperature : Double
 }
+pub fn LLMConfig::baidu_default(String) -> Self
 pub fn LLMConfig::deepseek_default(String) -> Self
+pub fn LLMConfig::moonshot_default(String) -> Self
 pub fn LLMConfig::openai_default(String) -> Self
+pub fn LLMConfig::qwen_default(String) -> Self
+pub fn LLMConfig::spark_default(String) -> Self
 
 pub struct LLMProviderHandle {
   config_fn : () -> LLMConfig
@@ -99,7 +158,64 @@ pub struct LLMResponse {
   content : String
   tool_calls : Array[ChatToolCall]?
   finish_reason : String
+  usage : TokenUsage?
 }
+
+pub struct ProviderInfo {
+  name : String
+  label : String
+  base_url : String
+  models : Array[String]
+}
+pub fn ProviderInfo::new(String, String, String, Array[String]) -> Self
+
+pub struct RateLimitConfig {
+  max_requests_per_minute : Int
+  max_concurrent : Int
+  retry_base_ms : Int
+  retry_max_ms : Int
+  max_retries : Int
+}
+pub fn RateLimitConfig::default() -> Self
+
+pub struct RateLimiter {
+  mut tokens : Int
+  max_tokens : Int
+  refill_rate : Int
+  refill_interval_ms : Int
+  mut last_refill_ms : Int64
+}
+pub fn RateLimiter::acquire(Self) -> Bool
+pub fn RateLimiter::new(Int, Int) -> Self
+
+pub struct RateLimiterState {
+  config : RateLimitConfig
+  request_timestamps : Array[Int]
+  mut current_concurrent : Int
+}
+pub fn RateLimiterState::acquire(Self) -> Bool
+pub fn RateLimiterState::backoff_delay(Self, Int) -> Int
+pub fn RateLimiterState::can_retry(Self, Int) -> Bool
+pub fn RateLimiterState::new(RateLimitConfig) -> Self
+pub fn RateLimiterState::release(Self) -> Unit
+
+pub struct ResponseCache {
+  entries : Map[String, CacheEntry]
+  max_size : Int
+}
+pub fn ResponseCache::clear(Self) -> Unit
+pub fn ResponseCache::get(Self, String) -> String?
+pub fn ResponseCache::invalidate(Self, String) -> Unit
+pub fn ResponseCache::new(Int) -> Self
+pub fn ResponseCache::put(Self, String, String, Int) -> Unit
+pub fn ResponseCache::size(Self) -> Int
+
+pub struct RetryConfig {
+  max_retries : Int
+  base_delay_ms : Int
+  max_delay_ms : Int
+}
+pub fn RetryConfig::default() -> Self
 
 pub enum SafetyVerdict {
   Pass
@@ -113,6 +229,7 @@ pub struct TokenUsage {
 }
 
 // Type aliases
+pub type StreamCallback = (String) -> Unit
 
 // Traits
 

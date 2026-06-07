@@ -96,7 +96,5 @@ fn generate_id() -> String {
 
 ///|
 fn now_ns() -> Int64 {
-  let mut counter : Int64 = 0L
-  counter = counter + 1L
-  counter
+  @async.now() * 1_000_000L
 }

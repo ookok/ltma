@@ -28,5 +28,7 @@ pub fn hash_compute(input : String) -> String {
 
 ///|
 pub fn codec_tool_def(name : String, desc : String) -> @core.ToolDefinition {
-  @core.ToolDefinition::create(name, desc, "{type:object,properties:{input:{type:string}}}", false)
+  @core.ToolDefinition::create(
+    name, desc, "{type:object,properties:{input:{type:string}}}", false,
+  )
 }

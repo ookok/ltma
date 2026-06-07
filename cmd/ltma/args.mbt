@@ -53,7 +53,9 @@ pub fn Args::parse() -> Args {
     } else if cmd == "--help" || cmd == "-h" || cmd == "help" {
       { command: Command::Help }
     } else {
-      { command: Command::Run(cmd, if raw.length() >= 3 { raw[2] } else { "" }) }
+      {
+        command: Command::Run(cmd, if raw.length() >= 3 { raw[2] } else { "" }),
+      }
     }
   }
 }
@@ -65,7 +67,9 @@ pub fn print_help() -> Unit {
   println("Usage: ltma [command] [args]")
   println("")
   println("Commands:")
-  println("  run <agent> [message]            Run an agent with an optional message")
+  println(
+    "  run <agent> [message]            Run an agent with an optional message",
+  )
   println("  chat                             Start interactive chat (TUI)")
   println("  async <provider> [model] <key>   Async chat with real LLM API")
   println("  list                             List registered agents")

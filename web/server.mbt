@@ -31,11 +31,20 @@ pub async fn App::start(self : App) -> Unit {
 fn read_body(conn : @async_http.ServerConnection) -> String {
   let mut buf = FixedArray::make(4096, b'\x00')
   let n = conn.read(buf)
-  if n > 0 { @encoding/utf8.decode_lossy(buf.view(0, n)) } else { "" }
+  if n > 0 {
+    @encoding/utf8.decode_lossy(buf.view(0, n))
+  } else {
+    ""
+  }
 }
 
 ///|
-fn App::handle(self : App, method : String, path : String, body : String) -> String {
+fn App::handle(
+  self : App,
+  method : String,
+  path : String,
+  body : String,
+) -> String {
   if method == "GET" && path == "/health" {
     "{\"status\":\"ok\",\"version\":\"0.1.0\"}"
   } else if method == "GET" && path == "/agents" {
@@ -53,8 +62,15 @@ fn list_agents_json(host : @host.AgentHost) -> String {
   let mut result = "{\"agents\":["
   let mut first = true
   for a in agents {
-    if !first { result = result + "," }
-    result = result + "{\"id\":\"" + a.id.name + "\",\"desc\":\"" + a.description + "\"}"
+    if !first {
+      result = result + ","
+    }
+    result = result +
+      "{\"id\":\"" +
+      a.id.name +
+      "\",\"desc\":\"" +
+      a.description +
+      "\"}"
     first = false
   }
   result + "]}"
@@ -86,7 +102,7 @@ fn extract_json_field(json : String, field : String) -> String? {
     Some(start) => {
       let after = json.sub(start=start + search.length())
       match after.find("\"") {
-        Some(end) => Some(after.sub(start=0, end=end).to_owned())
+        Some(end) => Some(after.sub(start=0, end~).to_owned())
         None => None
       }
     }

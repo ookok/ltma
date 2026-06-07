@@ -1,100 +1,123 @@
 ///|
-/// Simple metrics collection — counters, gauges, and histograms.
+/// Metrics — counters, gauges, histograms, and registry for observability.
 
 ///|
+/// Counter — a monotonically increasing counter.
 pub struct Counter {
   name : String
-  mut value : Int64
+  mut val : Int64
 }
 
 ///|
 pub fn Counter::new(name : String) -> Counter {
-  { name, value: 0L }
+  { name, val: 0L }
 }
 
 ///|
 pub fn Counter::inc(self : Counter, delta : Int64) -> Unit {
-  self.value = self.value + delta
+  self.val = self.val + delta
 }
 
 ///|
 pub fn Counter::value(self : Counter) -> Int64 {
-  self.value
+  self.val
 }
 
 ///|
 pub fn Counter::reset(self : Counter) -> Unit {
-  self.value = 0L
+  self.val = 0L
 }
 
 ///|
+/// Gauge — a numeric value that can go up and down.
 pub struct Gauge {
   name : String
-  mut value : Double
+  mut val : Double
 }
 
 ///|
 pub fn Gauge::new(name : String) -> Gauge {
-  { name, value: 0.0 }
+  { name, val: 0.0 }
 }
 
 ///|
 pub fn Gauge::set(self : Gauge, v : Double) -> Unit {
-  self.value = v
+  self.val = v
 }
 
 ///|
 pub fn Gauge::value(self : Gauge) -> Double {
-  self.value
+  self.val
 }
 
 ///|
+/// Histogram — tracks distribution of values.
 pub struct Histogram {
   name : String
-  buckets : Map[Int64, Int64]
-  mut count : Int64
-  mut sum : Int64
+  mut count_val : Int64
+  mut sum_val : Int64
 }
 
 ///|
 pub fn Histogram::new(name : String) -> Histogram {
-  { name, buckets: Map([]), count: 0L, sum: 0L }
+  { name, count_val: 0L, sum_val: 0L }
 }
 
 ///|
-pub fn Histogram::observe(self : Histogram, value_ns : Int64) -> Unit {
-  self.count = self.count + 1L
-  self.sum = self.sum + value_ns
-  // Place into power-of-2 bucket
-  let mut bucket = 1L
-  while bucket < value_ns {
-    bucket = bucket * 2L
-  }
-  let current = self.buckets.get(bucket).unwrap_or(0L)
-  self.buckets[bucket] = current + 1L
+pub fn Histogram::observe(self : Histogram, val : Int64) -> Unit {
+  self.count_val = self.count_val + 1L
+  self.sum_val = self.sum_val + val
 }
 
 ///|
 pub fn Histogram::count(self : Histogram) -> Int64 {
-  self.count
+  self.count_val
 }
 
 ///|
 pub fn Histogram::sum(self : Histogram) -> Int64 {
-  self.sum
+  self.sum_val
 }
 
 ///|
 pub fn Histogram::avg_ns(self : Histogram) -> Int64 {
-  if self.count > 0L {
-    self.sum / self.count
-  } else {
+  if self.count_val == 0L {
     0L
+  } else {
+    self.sum_val / self.count_val
   }
 }
 
 ///|
-/// Metrics registry — central store for all metrics.
+/// MetricSample — a snapshot of a metric at a point in time.
+pub struct MetricSample {
+  name : String
+  kind : MetricKind
+  value : Double
+  labels : Map[String, String]
+  timestamp : Int
+}
+
+///|
+pub fn MetricSample::new(
+  name : String,
+  kind : MetricKind,
+  value : Double,
+  labels : Map[String, String],
+  timestamp : Int,
+) -> MetricSample {
+  { name, kind, value, labels, timestamp }
+}
+
+///|
+pub enum MetricKind {
+  Counter
+  Gauge
+  Histogram
+}
+
+///|
+/// MetricsRegistry — creates and caches metric instances by name.
 pub struct MetricsRegistry {
   counters : Map[String, Counter]
   gauges : Map[String, Gauge]
@@ -149,25 +172,20 @@ pub fn MetricsRegistry::histogram(
 }
 
 ///|
-pub fn MetricsRegistry::snapshot(self : MetricsRegistry) -> String {
-  let mut result = ""
-  for name, c in self.counters {
-    result = result + "counter " + name + " " + c.value().to_string() + "\n"
-  }
-  for name, g in self.gauges {
-    result = result + "gauge " + name + " " + g.value().to_string() + "\n"
-  }
-  for name, h in self.histograms {
-    result = result +
-      "histogram " +
-      name +
-      " count=" +
-      h.count().to_string() +
-      " sum=" +
-      h.sum().to_string() +
-      " avg=" +
-      h.avg_ns().to_string() +
-      "\n"
-  }
-  result
+/// Track LLM API call metrics.
+pub fn track_llm_call(
+  registry : MetricsRegistry,
+  provider : String,
+  duration_ms : Int,
+  tokens_in : Int,
+  tokens_out : Int,
+) -> Unit {
+  let calls = registry.counter("llm.calls.total")
+  calls.inc(1L)
+  let in_tokens = registry.counter("llm.tokens.in")
+  in_tokens.inc(tokens_in.to_int64())
+  let out_tokens = registry.counter("llm.tokens.out")
+  out_tokens.inc(tokens_out.to_int64())
+  let prov = registry.counter("llm.calls." + provider)
+  prov.inc(1L)
 }

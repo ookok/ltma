@@ -195,7 +195,9 @@ pub struct AsyncLLMProviderHandle {
 }
 
 ///|
-pub fn AsyncLLMProviderHandle::config(self : AsyncLLMProviderHandle) -> LLMConfig {
+pub fn AsyncLLMProviderHandle::config(
+  self : AsyncLLMProviderHandle,
+) -> LLMConfig {
   (self.config_fn)()
 }
 

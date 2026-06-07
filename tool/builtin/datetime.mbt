@@ -15,5 +15,8 @@ fn get_timestamp() -> String {
 
 ///|
 pub fn datetime_tool_def() -> @core.ToolDefinition {
-  @core.ToolDefinition::create("datetime", "Get the current date and time", "{type:object,properties:{format:{type:string}}}", false)
+  @core.ToolDefinition::create(
+    "datetime", "Get the current date and time", "{type:object,properties:{format:{type:string}}}",
+    false,
+  )
 }

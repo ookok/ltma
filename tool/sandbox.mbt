@@ -90,22 +90,39 @@ pub fn ToolSandbox::execute(
   arguments : String,
 ) -> SandboxedResult {
   if self.call_count >= self.max_calls {
-    return SandboxedResult::blocked("tool call quota exceeded (max: " + self.max_calls.to_string() + ")")
+    return SandboxedResult::blocked(
+      "tool call quota exceeded (max: " + self.max_calls.to_string() + ")",
+    )
   }
   for d in self.denied_tools {
-    if d == tool_name { return SandboxedResult::blocked("tool '" + tool_name + "' is denied") }
+    if d == tool_name {
+      return SandboxedResult::blocked("tool '" + tool_name + "' is denied")
+    }
   }
   if self.allowed_tools.length() > 0 {
     let mut found = false
     for a in self.allowed_tools {
-      if a == tool_name { found = true; break }
+      if a == tool_name {
+        found = true
+        break
+      }
     }
-    if !found { return SandboxedResult::blocked("tool '" + tool_name + "' is not in allowed list") }
+    if !found {
+      return SandboxedResult::blocked(
+        "tool '" + tool_name + "' is not in allowed list",
+      )
+    }
   }
   if self.allowed_path_prefix is Some(prefix) {
-    let restricted = tool_name == "read" || tool_name == "write" || tool_name == "edit" || tool_name == "ls" || tool_name == "stat"
+    let restricted = tool_name == "read" ||
+      tool_name == "write" ||
+      tool_name == "edit" ||
+      tool_name == "ls" ||
+      tool_name == "stat"
     if restricted && !arguments.contains(prefix) {
-      return SandboxedResult::blocked("path not allowed: must be under '" + prefix + "'")
+      return SandboxedResult::blocked(
+        "path not allowed: must be under '" + prefix + "'",
+      )
     }
   }
   self.call_count = self.call_count + 1

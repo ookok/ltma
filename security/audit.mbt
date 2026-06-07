@@ -65,6 +65,40 @@ pub fn AuditLog::clear(self : AuditLog) -> Unit {
 }
 
 ///|
+pub fn AuditEvent::agent_created(agent : String) -> AuditEvent {
+  AuditEvent::AgentCreated(agent)
+}
+
+///|
+pub fn AuditEvent::agent_destroyed(agent : String) -> AuditEvent {
+  AuditEvent::AgentDestroyed(agent)
+}
+
+///|
+pub fn AuditEvent::tool_executed(agent : String, tool : String) -> AuditEvent {
+  AuditEvent::ToolExecuted(agent, tool)
+}
+
+///|
+pub fn AuditEvent::tool_denied(agent : String, tool : String) -> AuditEvent {
+  AuditEvent::ToolDenied(agent, tool)
+}
+
+///|
+pub fn AuditEvent::message_sent(from : String, to : String) -> AuditEvent {
+  AuditEvent::MessageSent(from, to)
+}
+
+///|
+pub fn AuditEvent::permission_check(
+  agent : String,
+  resource : String,
+  allowed : Bool,
+) -> AuditEvent {
+  AuditEvent::PermissionCheck(agent, resource, allowed)
+}
+
+///|
 fn format_event(event : AuditEvent) -> String {
   let name = audit_event_name(event)
   let detail = match event {

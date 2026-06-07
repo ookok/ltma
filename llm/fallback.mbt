@@ -10,35 +10,115 @@ pub enum CircuitState {
 }
 
 ///|
-/// Circuit breaker — tracks failures and stops calling after a threshold.
+/// Circuit breaker — tracks failures with half-open recovery.
 pub struct CircuitBreaker {
   mut state : CircuitState
   mut failures : Int
   threshold : Int
+  recovery_timeout_ms : Int
+  mut last_failure_time : Int
+  half_open_max : Int
+  mut half_open_calls : Int
+  mut half_open_successes : Int
 }
 
 ///|
 pub fn CircuitBreaker::new(threshold : Int) -> CircuitBreaker {
-  { state: CircuitState::Closed, failures: 0, threshold }
+  {
+    state: CircuitState::Closed,
+    failures: 0,
+    threshold,
+    recovery_timeout_ms: 30000,
+    last_failure_time: 0,
+    half_open_max: 3,
+    half_open_calls: 0,
+    half_open_successes: 0,
+  }
+}
+
+///|
+pub fn CircuitBreaker::allow_request(self : CircuitBreaker) -> Bool {
+  match self.state {
+    CircuitState::Closed => true
+    CircuitState::Open => {
+      let now = 0
+      if now - self.last_failure_time >= self.recovery_timeout_ms {
+        self.state = CircuitState::HalfOpen
+        self.half_open_calls = 0
+        self.half_open_successes = 0
+        true
+      } else {
+        false
+      }
+    }
+    CircuitState::HalfOpen => self.half_open_calls < self.half_open_max
+  }
 }
 
 ///|
 pub fn CircuitBreaker::record_success(self : CircuitBreaker) -> Unit {
   self.failures = 0
-  self.state = CircuitState::Closed
+  match self.state {
+    CircuitState::HalfOpen => {
+      self.half_open_successes = self.half_open_successes + 1
+      if self.half_open_successes >= self.half_open_max {
+        self.state = CircuitState::Closed
+      }
+    }
+    _ => self.state = CircuitState::Closed
+  }
 }
 
 ///|
 pub fn CircuitBreaker::record_failure(self : CircuitBreaker) -> Unit {
   self.failures = self.failures + 1
-  if self.failures >= self.threshold {
-    self.state = CircuitState::Open
+  self.last_failure_time = 0
+  match self.state {
+    CircuitState::HalfOpen => self.state = CircuitState::Open
+    _ => if self.failures >= self.threshold { self.state = CircuitState::Open }
   }
 }
 
 ///|
 pub fn CircuitBreaker::is_open(self : CircuitBreaker) -> Bool {
-  self.state is CircuitState::Open
+  match self.state {
+    CircuitState::Open => {
+      let now = 0
+      if now - self.last_failure_time >= self.recovery_timeout_ms {
+        self.state = CircuitState::HalfOpen
+        self.half_open_calls = 0
+        self.half_open_successes = 0
+        false
+      } else {
+        true
+      }
+    }
+    CircuitState::HalfOpen =>
+      if self.half_open_calls < self.half_open_max {
+        self.half_open_calls = self.half_open_calls + 1
+        false
+      } else {
+        true
+      }
+    _ => false
+  }
+}
+
+///|
+pub fn CircuitBreaker::state_name(self : CircuitBreaker) -> String {
+  match self.state {
+    CircuitState::Closed => "closed"
+    CircuitState::Open => "open"
+    CircuitState::HalfOpen => "half_open"
+  }
+}
+
+///|
+pub fn CircuitBreaker::reset(self : CircuitBreaker) -> Unit {
+  self.state = CircuitState::Closed
+  self.failures = 0
+  self.half_open_calls = 0
+  self.half_open_successes = 0
 }
 
 ///|
@@ -81,7 +161,6 @@ pub fn FallbackChain::chat(
   }
   for i = 0; i < self.providers.length(); i = i + 1 {
     let provider = self.providers[i]
-    // Use try-catch for sync calls; async errors would need a different pattern
     let resp = provider.chat(messages, tools)
     if resp.finish_reason != "error" {
       self.breaker.record_success()

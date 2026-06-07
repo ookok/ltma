@@ -8,6 +8,8 @@ import {
 // Values
 pub fn create_onnx_provider(String, String) -> @memory.EmbeddingProviderHandle?
 
+pub fn ensure_model(String, String) -> Bool
+
 // Errors
 
 // Types and methods

@@ -10,7 +10,11 @@ pub struct Plugin {
 }
 
 ///|
-pub fn Plugin::new(name : String, version : String, description : String) -> Plugin {
+pub fn Plugin::new(
+  name : String,
+  version : String,
+  description : String,
+) -> Plugin {
   { name, version, description }
 }
 
@@ -33,7 +37,9 @@ pub fn PluginRegistry::register(self : PluginRegistry, plugin : Plugin) -> Unit 
 ///|
 pub fn PluginRegistry::list(self : PluginRegistry) -> Array[Plugin] {
   let result : Array[Plugin] = []
-  for _, p in self.plugins { result.push(p) }
+  for _, p in self.plugins {
+    result.push(p)
+  }
   result
 }
 

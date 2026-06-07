@@ -2,4 +2,13 @@ import {
   "livingtree/ltma/core",
   "livingtree/ltma/pipeline",
   "livingtree/ltma/protocol",
+  "livingtree/ltma/telemetry",
+  "livingtree/ltma/security",
+  "livingtree/ltma/agent",
+  "moonbitlang/core/encoding/utf8",
 }
+
+options(
+  "native-stub": [ "fs_watcher_stub.c" ],
+  targets: { "fs_watcher.mbt": [ "native" ] },
+)

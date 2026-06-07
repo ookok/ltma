@@ -1,0 +1,49 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "livingtree/ltma/storage"
+
+import {
+  "myfreess/sqlite3",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct KnowledgeStore {
+  conn : @sqlite3.Connection
+}
+pub fn KnowledgeStore::add_entity(Self, String, String, String, String) -> Unit raise @sqlite3.SqliteError
+pub fn KnowledgeStore::add_relation(Self, String, String, String) -> Unit raise @sqlite3.SqliteError
+pub fn KnowledgeStore::close(Self) -> Unit raise @sqlite3.SqliteError
+pub fn KnowledgeStore::get_entity(Self, String) -> (String, String, String)? raise @sqlite3.SqliteError
+pub fn KnowledgeStore::open(String) -> Self raise @sqlite3.SqliteError
+pub fn KnowledgeStore::query_relations(Self, String) -> Array[(String, String)] raise @sqlite3.SqliteError
+pub fn KnowledgeStore::search_entities(Self, String) -> Array[(String, String, String, String)] raise @sqlite3.SqliteError
+
+pub struct KvStore {
+  conn : @sqlite3.Connection
+}
+pub fn KvStore::clear(Self) -> Unit raise @sqlite3.SqliteError
+pub fn KvStore::close(Self) -> Unit raise @sqlite3.SqliteError
+pub fn KvStore::count(Self) -> Int raise @sqlite3.SqliteError
+pub fn KvStore::get(Self, String) -> String? raise @sqlite3.SqliteError
+pub fn KvStore::list(Self) -> Array[String] raise @sqlite3.SqliteError
+pub fn KvStore::open(String) -> Self raise @sqlite3.SqliteError
+pub fn KvStore::remove(Self, String) -> Unit raise @sqlite3.SqliteError
+pub fn KvStore::set(Self, String, String) -> Unit raise @sqlite3.SqliteError
+
+pub struct SessionStore {
+  conn : @sqlite3.Connection
+}
+pub fn SessionStore::add_message(Self, String, String, String) -> Unit raise @sqlite3.SqliteError
+pub fn SessionStore::clear(Self, String) -> Unit raise @sqlite3.SqliteError
+pub fn SessionStore::close(Self) -> Unit raise @sqlite3.SqliteError
+pub fn SessionStore::get_history(Self, String) -> Array[String] raise @sqlite3.SqliteError
+pub fn SessionStore::list_sessions(Self) -> Array[String] raise @sqlite3.SqliteError
+pub fn SessionStore::open(String) -> Self raise @sqlite3.SqliteError
+
+// Type aliases
+
+// Traits
+

@@ -203,13 +203,6 @@ pub fn ToolDefinition::create(
 }
 
 ///|
-pub struct SearchResult {
-  key : String
-  score : Double
-  content : String
-}
-
-///|
 pub struct AgentContext {
   agent_id : AgentId
   host_name : String

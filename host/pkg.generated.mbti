@@ -2,28 +2,110 @@
 package "livingtree/ltma/host"
 
 import {
+  "livingtree/ltma/agent",
   "livingtree/ltma/core",
   "livingtree/ltma/pipeline",
+  "livingtree/ltma/protocol",
+  "livingtree/ltma/security",
+  "livingtree/ltma/telemetry",
 }
 
 // Values
-pub fn activate_in_process(() -> @core.AgentHandle, @core.AgentId) -> ActivationResult
+pub fn activate_in_process(() -> @core.AgentHandle, @core.AgentId) -> ActivationToken
 
-pub fn deactivate(ActivationResult) -> Unit
+pub fn activate_in_process_with_hooks(() -> @core.AgentHandle, @core.AgentId, @agent.LifecycleHooks) -> ActivationToken
+
+pub fn activate_with_isolation(@core.AgentHandle, @core.AgentId, ActivationConfig) -> ActivationToken
+
+pub fn broadcast(AgentHost, @core.Message) -> Array[@core.Message]
+
+pub fn deactivate(ActivationToken) -> Unit
+
+pub fn discover(DiscoverySource) -> DiscoveryResult
+
+pub fn get_mtime(String) -> Int64
+
+pub fn list_dir(String) -> Array[String]
+
+pub fn register_discovered(AgentCatalog, DiscoveryResult, (AgentManifest) -> @core.AgentHandle) -> Int
+
+pub fn request_reply(AgentHost, @core.AgentId, @core.Message) -> @core.Message?
 
 // Errors
 
 // Types and methods
-pub struct ActivationResult {
-  adapter : @pipeline.HostAdapter
-  strategy : ActivationStrategy
+pub struct AccessToken {
+  issuer : String
+  subject : String
+  capabilities : Array[String]
+  mut expired : Bool
 }
-pub fn ActivationResult::new(@pipeline.HostAdapter, ActivationStrategy) -> Self
+pub fn AccessToken::has_capability(Self, String) -> Bool
+pub fn AccessToken::invalidate(Self) -> Unit
+pub fn AccessToken::is_valid(Self) -> Bool
+pub fn AccessToken::new(String, String, Array[String]) -> Self
+
+pub struct ActivationConfig {
+  host : IsolationHost
+  sandbox_config : @pipeline.SandboxConfig
+  time_limit_ms : Int
+  memory_limit_mb : Int
+}
+pub fn ActivationConfig::in_process() -> Self
+pub fn ActivationConfig::process(Int, Int) -> Self
+pub fn ActivationConfig::wasm(Int, Int) -> Self
 
 pub enum ActivationStrategy {
   Singleton
   PerCall
 }
+
+pub struct ActivationToken {
+  agent_id : @core.AgentId
+  adapter : @pipeline.HostSideAdapter
+  strategy : ActivationStrategy
+  hooks : @agent.LifecycleHooks
+}
+pub fn ActivationToken::agent_id(Self) -> @core.AgentId
+pub fn ActivationToken::call(Self, @core.Message) -> @core.Message
+pub fn ActivationToken::call_with_trace(Self, @core.Message, String, String) -> @core.Message
+pub fn ActivationToken::initialize(Self, @core.AgentContext) -> Unit
+pub fn ActivationToken::metadata(Self) -> @core.AgentMetadata
+pub fn ActivationToken::new(@core.AgentId, @pipeline.HostSideAdapter, ActivationStrategy, @agent.LifecycleHooks) -> Self
+pub fn ActivationToken::send(Self, @core.Message) -> @core.Message
+pub fn ActivationToken::send_with_trace(Self, @core.Message, String, String) -> @core.Message
+pub fn ActivationToken::shutdown(Self) -> Unit
+pub fn ActivationToken::status(Self) -> @core.AgentStatus
+
+pub struct AddInRecord {
+  agent_id : @core.AgentId
+  metadata : @core.AgentMetadata
+  pipeline_version : String
+  assembly_path : String
+  enabled : Bool
+}
+pub fn AddInRecord::new(@core.AgentId, @core.AgentMetadata, String, String, Bool) -> Self
+
+pub struct AddInStore {
+  entries : Map[String, AddInRecord]
+}
+pub fn AddInStore::count(Self) -> Int
+pub fn AddInStore::disable(Self, @core.AgentId) -> Unit
+pub fn AddInStore::enable(Self, @core.AgentId) -> Unit
+pub fn AddInStore::list(Self) -> Array[AddInRecord]
+pub fn AddInStore::new() -> Self
+pub fn AddInStore::remove(Self, @core.AgentId) -> Unit
+pub fn AddInStore::resolve(Self, @core.AgentId) -> AddInRecord?
+pub fn AddInStore::store(Self, AddInRecord) -> Unit
+
+pub struct AddInStoreManager {
+  store : AddInStore
+  catalog : AgentCatalog
+}
+pub fn AddInStoreManager::catalog(Self) -> AgentCatalog
+pub fn AddInStoreManager::import_discovered(Self, DiscoveryResult, (AgentManifest) -> @core.AgentHandle) -> Int
+pub fn AddInStoreManager::new() -> Self
+pub fn AddInStoreManager::store(Self) -> AddInStore
 
 pub struct AgentCatalog {
   entries : Map[String, AgentRegistration]
@@ -38,18 +120,77 @@ pub fn AgentCatalog::resolve(Self, @core.AgentId) -> AgentRegistration?
 pub struct AgentHost {
   catalog : AgentCatalog
   bus : EventBus
-  active : Map[String, ActivationResult]
+  active : Map[String, ActivationToken]
+  a2a : @protocol.A2ARouter
+  metrics : @telemetry.MetricsRegistry
+  tracer : @telemetry.Tracer
+  policy_engine : @security.PolicyEngine
+  audit_log : @security.AuditLog
+  bulkheads : @core.BulkheadRegistry
+  timeout_tracker : @core.TimeoutTracker
+  health_registry : HealthRegistry
+  config : AgentHostConfig
 }
-pub fn AgentHost::activate(Self, @core.AgentId) -> @pipeline.HostAdapter?
+pub fn AgentHost::a2a_broadcast(Self, @protocol.A2AMessage) -> Array[@protocol.A2AMessage]
+pub fn AgentHost::activate(Self, @core.AgentId) -> ActivationToken?
+pub fn AgentHost::audit_log(Self) -> @security.AuditLog
+pub fn AgentHost::bulkheads(Self) -> @core.BulkheadRegistry
 pub fn AgentHost::deactivate(Self, @core.AgentId) -> Unit
+pub fn AgentHost::health_registry(Self) -> HealthRegistry
 pub fn AgentHost::list_registered(Self) -> Array[@core.AgentMetadata]
+pub fn AgentHost::metrics_registry(Self) -> @telemetry.MetricsRegistry
 pub fn AgentHost::new() -> Self
+pub fn AgentHost::new_with_config(AgentHostConfig) -> Self
+pub fn AgentHost::policy_engine(Self) -> @security.PolicyEngine
 pub fn AgentHost::register(Self, @core.AgentMetadata, () -> @core.AgentHandle) -> Unit
+pub fn AgentHost::register_a2a(Self, String, (@protocol.A2AMessage) -> @protocol.A2AMessage?) -> Unit
 pub fn AgentHost::send(Self, @core.AgentId, @core.Message) -> @core.Message?
+pub fn AgentHost::send_a2a(Self, @protocol.A2AMessage) -> @protocol.A2AMessage?
+pub fn AgentHost::shutdown_all(Self) -> Unit
+pub fn AgentHost::timeout_tracker(Self) -> @core.TimeoutTracker
+pub fn AgentHost::tracer(Self) -> @telemetry.Tracer
+
+pub struct AgentHostConfig {
+  policy : @security.SecurityPolicy
+  bulkhead_config : @core.BulkheadConfig
+  timeout_policy : @core.TimeoutPolicy
+  audit_max_entries : Int
+}
+pub fn AgentHostConfig::default() -> Self
+
+pub struct AgentManifest {
+  name : String
+  version : String
+  description : String
+  capabilities : Array[String]
+  isolation : String
+  target : String
+}
+pub fn AgentManifest::to_metadata(Self) -> @core.AgentMetadata
 
 pub struct AgentRegistration {
   metadata : @core.AgentMetadata
   factory : () -> @core.AgentHandle
+}
+
+pub struct AgentRouter {
+  catalog : AgentCatalog
+}
+pub fn AgentRouter::new(AgentCatalog) -> Self
+pub fn AgentRouter::route(Self, RoutingIntent) -> RoutingMatch?
+pub fn AgentRouter::route_all(Self, RoutingIntent) -> Array[RoutingMatch]
+
+pub struct DiscoveryResult {
+  source : DiscoverySource
+  manifests : Array[AgentManifest]
+  errors : Array[String]
+}
+pub fn DiscoveryResult::new(DiscoverySource, Array[AgentManifest], Array[String]) -> Self
+
+pub enum DiscoverySource {
+  Directory(String)
+  Package(String)
+  Inline
 }
 
 pub struct EventBus {
@@ -58,6 +199,55 @@ pub struct EventBus {
 pub fn EventBus::new() -> Self
 pub fn EventBus::publish(Self, HostEvent) -> Unit
 pub fn EventBus::subscribe(Self, (HostEvent) -> Unit) -> Unit
+
+pub struct FsWatcher {
+  mut files : Array[(String, Int64)]
+}
+pub fn FsWatcher::add_dir(Self, String) -> Unit
+pub fn FsWatcher::add_file(Self, String) -> Unit
+pub fn FsWatcher::clear(Self) -> Unit
+pub fn FsWatcher::len(Self) -> Int
+pub fn FsWatcher::new() -> Self
+pub fn FsWatcher::poll(Self) -> Array[String]
+
+pub struct GracefulShutdown {
+  host : AgentHost
+  config : ShutdownConfig
+  mut phase : ShutdownPhase
+}
+pub fn GracefulShutdown::complete(Self) -> Unit
+pub fn GracefulShutdown::drain(Self) -> Unit
+pub fn GracefulShutdown::initiate(Self) -> Unit
+pub fn GracefulShutdown::is_complete(Self) -> Bool
+pub fn GracefulShutdown::new(AgentHost) -> Self
+pub fn GracefulShutdown::new_with_config(AgentHost, ShutdownConfig) -> Self
+pub fn GracefulShutdown::phase_name(Self) -> String
+
+pub struct HealthCheck {
+  name : String
+  probes : Array[() -> HealthStatus]
+  mut healthy : Bool
+  mut last_error : String
+}
+pub fn HealthCheck::add_probe(Self, () -> HealthStatus) -> Unit
+pub fn HealthCheck::check(Self) -> HealthStatus
+pub fn HealthCheck::is_healthy(Self) -> Bool
+pub fn HealthCheck::last_error(Self) -> String
+pub fn HealthCheck::new(String) -> Self
+
+pub struct HealthRegistry {
+  checks : Map[String, HealthCheck]
+}
+pub fn HealthRegistry::new() -> Self
+pub fn HealthRegistry::overall(Self) -> HealthStatus
+pub fn HealthRegistry::register(Self, HealthCheck) -> Unit
+pub fn HealthRegistry::run_all(Self) -> Array[(String, HealthStatus)]
+
+pub enum HealthStatus {
+  Healthy
+  Degraded(String)
+  Unhealthy(String)
+}
 
 pub enum HostEvent {
   AgentRegistered(@core.AgentId)
@@ -69,8 +259,156 @@ pub enum HostEvent {
   System(String)
 }
 
+pub enum IsolationHost {
+  InProcess
+  WasmSandbox
+  ExternalProcess
+}
+
+pub struct PluginInfo {
+  name : String
+  version : String
+  source : PluginSource
+  mut loaded : Bool
+}
+pub fn PluginInfo::new(String, String, PluginSource) -> Self
+
+pub struct PluginLoader {
+  loaded : Map[String, PluginInfo]
+  catalog : AgentCatalog
+}
+pub fn PluginLoader::count_loaded(Self) -> Int
+pub fn PluginLoader::list_loaded(Self) -> Array[PluginInfo]
+pub fn PluginLoader::load(Self, PluginInfo, () -> @core.AgentHandle, @core.AgentMetadata) -> Unit
+pub fn PluginLoader::new(AgentCatalog) -> Self
+pub fn PluginLoader::scan(Self, PluginSource) -> Array[PluginInfo]
+pub fn PluginLoader::unload(Self, String, String) -> Unit
+
+pub enum PluginSource {
+  File(String)
+  Directory(String)
+  Package(String)
+}
+
+pub struct PubSubBus {
+  subscriptions : Map[String, Array[Subscription]]
+}
+pub fn PubSubBus::new() -> Self
+pub fn PubSubBus::publish(Self, PubSubMessage) -> Unit
+pub fn PubSubBus::subscribe(Self, Subscription) -> Unit
+pub fn PubSubBus::unsubscribe(Self, String) -> Unit
+
+pub struct PubSubMessage {
+  topic : String
+  payload : String
+  sender : String
+}
+pub fn PubSubMessage::new(String, String, String) -> Self
+
+pub enum ReloadAction {
+  Reloaded
+  Failed
+  Removed
+}
+
+pub struct ReloadEvent {
+  agent_id : String
+  action : ReloadAction
+}
+pub fn ReloadEvent::new(String, ReloadAction) -> Self
+
+pub struct ReloadWatcher {
+  host : AgentHost
+  sources : Array[String]
+  watchers : Array[() -> Unit]
+  fs_watcher : FsWatcher
+}
+pub fn ReloadWatcher::add_source(Self, String) -> Unit
+pub fn ReloadWatcher::new(AgentHost) -> Self
+pub fn ReloadWatcher::notify(Self) -> Unit
+pub fn ReloadWatcher::on_change(Self, () -> Unit) -> Unit
+pub fn ReloadWatcher::trigger_reload(Self, String) -> Unit
+pub fn ReloadWatcher::watch(Self) -> Array[String]
+
+pub struct RoutingIntent {
+  action : String
+  context : Map[String, String]
+}
+pub fn RoutingIntent::get(Self, String) -> String?
+pub fn RoutingIntent::new(String) -> Self
+pub fn RoutingIntent::set(Self, String, String) -> Unit
+
+pub struct RoutingMatch {
+  agent_id : @core.AgentId
+  confidence : Double
+}
+pub fn RoutingMatch::new(@core.AgentId, Double) -> Self
+
+pub struct ScheduleSpec {
+  interval_ms : Int
+  repeat : Bool
+  max_runs : Int
+}
+pub fn ScheduleSpec::limited(Int, Int) -> Self
+pub fn ScheduleSpec::once() -> Self
+pub fn ScheduleSpec::periodic(Int) -> Self
+
+pub struct ScheduledJob {
+  name : String
+  spec : ScheduleSpec
+  agent_name : String
+  input : String
+  mut run_count : Int
+  enabled : Bool
+}
+pub fn ScheduledJob::new(String, ScheduleSpec, String, String) -> Self
+
+pub struct Scheduler {
+  jobs : Map[String, ScheduledJob]
+  host : AgentHost
+}
+pub fn Scheduler::add_job(Self, ScheduledJob) -> Unit
+pub fn Scheduler::job_count(Self) -> Int
+pub fn Scheduler::new(AgentHost) -> Self
+pub fn Scheduler::remove_job(Self, String) -> Unit
+pub fn Scheduler::run_count(Self) -> Int
+pub fn Scheduler::tick(Self) -> Unit
+
+pub struct ShutdownConfig {
+  drain_timeout_ms : Int
+  force_kill_timeout_ms : Int
+}
+pub fn ShutdownConfig::default() -> Self
+
+pub enum ShutdownPhase {
+  Running
+  Draining
+  ShuttingDown
+  Complete
+}
+
+pub struct Subscription {
+  topic : String
+  handler : (PubSubMessage) -> Unit
+  subscription_id : String
+}
+pub fn Subscription::new(String, (PubSubMessage) -> Unit, String) -> Self
+
+pub struct TokenManager {
+  secrets : Map[String, String]
+  issued_tokens : Map[String, AccessToken]
+}
+pub fn TokenManager::issue_token(Self, String, String, Array[String]) -> String?
+pub fn TokenManager::new() -> Self
+pub fn TokenManager::register_secret(Self, String, String) -> Unit
+pub fn TokenManager::revoke(Self, String) -> Unit
+pub fn TokenManager::revoke_all(Self, String) -> Unit
+pub fn TokenManager::validate(Self, String) -> AccessToken?
+
 // Type aliases
 pub type EventHandler = (HostEvent) -> Unit
+
+pub type HealthProbe = () -> HealthStatus
 
 // Traits
 

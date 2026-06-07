@@ -16,5 +16,8 @@ fn get_tick() -> Int {
 
 ///|
 pub fn random_tool_def() -> @core.ToolDefinition {
-  @core.ToolDefinition::create("random", "Generate a random number (0 to max-1)", "{type:object,properties:{max:{type:int}}}", false)
+  @core.ToolDefinition::create(
+    "random", "Generate a random number (0 to max-1)", "{type:object,properties:{max:{type:int}}}",
+    false,
+  )
 }

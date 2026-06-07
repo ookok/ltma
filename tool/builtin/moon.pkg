@@ -6,11 +6,10 @@ import {
   "moonbitlang/x/fs" @xfs,
   "moonbitlang/core/debug",
   "moonbitlang/core/string",
+  "moonbitlang/core/encoding/utf8" @encoding/utf8,
 }
 
 options(
-  "native-stub": ["shell_stub.c"],
-  targets: {
-    "shell.mbt": ["native"],
-  },
+  "native-stub": [ "shell_stub.c" ],
+  targets: { "shell.mbt": [ "native" ], "git_tool.mbt": [ "native" ] },
 )

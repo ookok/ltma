@@ -13,6 +13,41 @@ pub enum LifecycleEvent {
 }
 
 ///|
+pub fn LifecycleEvent::before_init() -> LifecycleEvent {
+  LifecycleEvent::BeforeInit
+}
+
+///|
+pub fn LifecycleEvent::after_init() -> LifecycleEvent {
+  LifecycleEvent::AfterInit
+}
+
+///|
+pub fn LifecycleEvent::before_run() -> LifecycleEvent {
+  LifecycleEvent::BeforeRun
+}
+
+///|
+pub fn LifecycleEvent::after_run() -> LifecycleEvent {
+  LifecycleEvent::AfterRun
+}
+
+///|
+pub fn LifecycleEvent::before_shutdown() -> LifecycleEvent {
+  LifecycleEvent::BeforeShutdown
+}
+
+///|
+pub fn LifecycleEvent::after_shutdown() -> LifecycleEvent {
+  LifecycleEvent::AfterShutdown
+}
+
+///|
+pub fn LifecycleEvent::on_error(msg : String) -> LifecycleEvent {
+  LifecycleEvent::OnError(msg)
+}
+
+///|
 pub type LifecycleHook = (LifecycleEvent, @core.AgentId) -> Unit
 
 ///|

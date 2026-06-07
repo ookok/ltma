@@ -6,42 +6,84 @@ import {
 }
 
 // Values
+pub fn check_capabilities(Array[String], Array[String]) -> QualificationResult
+
+pub fn check_contract(String, String, QualificationLevel) -> QualificationResult
+
 pub fn create_sandbox(@core.IsolationLevel) -> Sandbox
 
 pub fn deserialize_message(String) -> @core.Message?
 
+pub fn error_recovery_middleware() -> (CallContext, () -> Unit) -> Unit
+
+pub fn logging_middleware(String) -> (CallContext, () -> Unit) -> Unit
+
 pub fn serialize_message(@core.Message) -> String
+
+pub fn serialize_status(@core.AgentStatus) -> String
+
+pub fn serialize_tool_call(@core.ToolCall) -> String
+
+pub fn serialize_tool_result(@core.ToolResult) -> String
+
+pub fn timing_middleware() -> (CallContext, () -> Unit) -> Unit
 
 // Errors
 
 // Types and methods
-pub struct AgentAdapter {
+pub struct AddInSideAdapter {
   handle : @core.AgentHandle
   mut st : @core.AgentStatus
 }
-pub fn AgentAdapter::agent_id(Self) -> @core.AgentId
-pub fn AgentAdapter::call(Self, @core.Message) -> @core.Message
-pub fn AgentAdapter::execute_tool(Self, @core.ToolCall) -> @core.ToolResult
-pub fn AgentAdapter::initialize(Self, @core.AgentContext) -> Unit
-pub fn AgentAdapter::metadata(Self) -> @core.AgentMetadata
-pub fn AgentAdapter::new(@core.AgentHandle) -> Self
-pub fn AgentAdapter::shutdown(Self) -> Unit
-pub fn AgentAdapter::status(Self) -> @core.AgentStatus
+pub fn AddInSideAdapter::agent_id(Self) -> @core.AgentId
+pub fn AddInSideAdapter::call(Self, @core.Message) -> @core.Message
+pub fn AddInSideAdapter::execute_tool(Self, @core.ToolCall) -> @core.ToolResult
+pub fn AddInSideAdapter::initialize(Self, @core.AgentContext) -> Unit
+pub fn AddInSideAdapter::metadata(Self) -> @core.AgentMetadata
+pub fn AddInSideAdapter::new(@core.AgentHandle) -> Self
+pub fn AddInSideAdapter::shutdown(Self) -> Unit
+pub fn AddInSideAdapter::status(Self) -> @core.AgentStatus
+pub fn AddInSideAdapter::to_contract(Self) -> @core.ContractHandle
 
-pub struct HostAdapter {
+pub struct AsyncHostAdapter {
   agent_id : @core.AgentId
-  handle : @core.AgentHandle
+  handle : @core.AsyncAgentHandle
   meta : @core.AgentMetadata
   mut st : @core.AgentStatus
 }
-pub fn HostAdapter::agent_id(Self) -> @core.AgentId
-pub fn HostAdapter::call(Self, @core.Message) -> @core.Message
-pub fn HostAdapter::initialize(Self, @core.AgentContext) -> Unit
-pub fn HostAdapter::metadata(Self) -> @core.AgentMetadata
-pub fn HostAdapter::new(@core.AgentHandle) -> Self
-pub fn HostAdapter::new_with_meta(@core.AgentHandle, @core.AgentMetadata) -> Self
-pub fn HostAdapter::shutdown(Self) -> Unit
-pub fn HostAdapter::status(Self) -> @core.AgentStatus
+pub fn AsyncHostAdapter::agent_id(Self) -> @core.AgentId
+pub async fn AsyncHostAdapter::call(Self, @core.Message) -> @core.Message
+pub fn AsyncHostAdapter::initialize(Self, @core.AgentContext) -> Unit
+pub fn AsyncHostAdapter::new(@core.AsyncAgentHandle) -> Self
+pub fn AsyncHostAdapter::shutdown(Self) -> Unit
+
+pub struct CallContext {
+  agent_id : String
+  input : @core.Message
+  mut output : @core.Message
+  error : String?
+  metadata : Map[String, String]
+}
+pub fn CallContext::get_meta(Self, String) -> String?
+pub fn CallContext::new(String, @core.Message) -> Self
+pub fn CallContext::set_meta(Self, String, String) -> Unit
+
+pub struct HostSideAdapter {
+  agent_id : @core.AgentId
+  contract : @core.ContractHandle
+  meta : @core.AgentMetadata
+  mut st : @core.AgentStatus
+  mut middleware : MiddlewarePipeline?
+}
+pub fn HostSideAdapter::agent_id(Self) -> @core.AgentId
+pub fn HostSideAdapter::call(Self, @core.Message) -> @core.Message
+pub fn HostSideAdapter::call_with_trace(Self, @core.Message, String, String) -> @core.Message
+pub fn HostSideAdapter::initialize(Self, @core.AgentContext) -> Unit
+pub fn HostSideAdapter::metadata(Self) -> @core.AgentMetadata
+pub fn HostSideAdapter::new(@core.ContractHandle, @core.AgentMetadata) -> Self
+pub fn HostSideAdapter::shutdown(Self) -> Unit
+pub fn HostSideAdapter::status(Self) -> @core.AgentStatus
+pub fn HostSideAdapter::use_middleware(Self, MiddlewarePipeline) -> Unit
 
 pub struct LifecycleManager {
   mut st : @core.AgentStatus
@@ -51,6 +93,60 @@ pub fn LifecycleManager::new() -> Self
 pub fn LifecycleManager::reset(Self) -> Unit
 pub fn LifecycleManager::status(Self) -> @core.AgentStatus
 pub fn LifecycleManager::transition(Self, @core.AgentStatus) -> Unit
+
+pub struct MarshalContext {
+  protocol_version : String
+  encoding : String
+}
+pub fn MarshalContext::new() -> Self
+
+pub enum MarshalKind {
+  Text
+  System
+  ToolCall
+  ToolResult
+  Status
+  Error
+}
+
+pub struct MiddlewarePipeline {
+  middlewares : Array[(CallContext, () -> Unit) -> Unit]
+}
+pub fn MiddlewarePipeline::execute(Self, CallContext, () -> Unit) -> Unit
+pub fn MiddlewarePipeline::new() -> Self
+pub fn MiddlewarePipeline::use(Self, (CallContext, () -> Unit) -> Unit) -> Unit
+
+pub enum PipelineSegmentToken {
+  Host
+  HostSideAdapter
+  Contract
+  AddInSideAdapter
+  AddIn
+}
+
+pub struct PipelineStore {
+  segments : Map[String, SegmentRecord]
+}
+pub fn PipelineStore::clear(Self) -> Unit
+pub fn PipelineStore::list(Self) -> Array[SegmentRecord]
+pub fn PipelineStore::new() -> Self
+pub fn PipelineStore::register(Self, SegmentRecord) -> Unit
+pub fn PipelineStore::remove(Self, PipelineSegmentToken) -> Unit
+pub fn PipelineStore::resolve(Self, PipelineSegmentToken) -> SegmentRecord?
+
+pub enum QualificationLevel {
+  Strict
+  Compatible
+  Loose
+}
+
+pub struct QualificationResult {
+  passed : Bool
+  message : String
+  level : QualificationLevel
+}
+pub fn QualificationResult::failed(QualificationLevel, String) -> Self
+pub fn QualificationResult::passed(QualificationLevel) -> Self
 
 pub struct Sandbox {
   config : SandboxConfig
@@ -79,7 +175,16 @@ pub enum SandboxKind {
   Process
 }
 
+pub struct SegmentRecord {
+  token : PipelineSegmentToken
+  version : String
+  path : String
+  checksum : String
+}
+pub fn SegmentRecord::new(PipelineSegmentToken, String, String, String) -> Self
+
 // Type aliases
+pub type MiddlewareFn = (CallContext, () -> Unit) -> Unit
 
 // Traits
 

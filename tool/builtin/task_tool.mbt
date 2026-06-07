@@ -15,5 +15,8 @@ pub fn task_tool_json(input : String) -> String {
 
 ///|
 pub fn task_tool_def() -> @core.ToolDefinition {
-  @core.ToolDefinition::create("task", "Delegate a sub-task to another agent", "{type:object,properties:{agent:{type:string},task:{type:string}}}", false)
+  @core.ToolDefinition::create(
+    "task", "Delegate a sub-task to another agent", "{type:object,properties:{agent:{type:string},task:{type:string}}}",
+    false,
+  )
 }
