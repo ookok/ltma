@@ -1,0 +1,107 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "livingtree/ltma/language"
+
+import {
+  "livingtree/ltma/core",
+  "livingtree/ltma/tool",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn detect_language_from_extension(String) -> LanguageId?
+
+pub fn free_tree(SyntaxTree) -> Unit
+
+pub fn make_parse_tool() -> @tool.ToolEntry
+
+pub fn make_query_tool() -> @tool.ToolEntry
+
+pub fn node_text(String, SyntaxNode) -> String
+
+pub fn node_to_json(SyntaxNode, Int) -> @core.JsonValue
+
+pub fn parse_code(String, Int) -> SyntaxTree?
+
+pub fn parse_code_tool(String, String) -> String
+
+pub fn query_code_tool(String, String, String) -> String
+
+pub fn query_matches(QueryHandle, SyntaxNode) -> Array[QueryMatch]
+
+pub fn tree_to_json(SyntaxTree, Int) -> @core.JsonValue
+
+// Errors
+
+// Types and methods
+pub struct Capture {
+  name : String
+  kind : String
+  range : Range
+}
+pub fn Capture::new(String, String, Range) -> Self
+
+pub enum LanguageId {
+  C
+  Cpp
+  Rust
+  Python
+  JavaScript
+  TypeScript
+  Go
+  Java
+  CSharp
+  MoonBit
+} derive(Eq, @debug.Debug)
+pub fn LanguageId::from_name(String) -> Self?
+pub fn LanguageId::to_int(Self) -> Int
+pub fn LanguageId::to_name(Self) -> String
+
+pub struct ParserHandle {
+  ptr : Int64
+}
+pub fn ParserHandle::free(Self) -> Unit
+pub fn ParserHandle::new() -> Self
+pub fn ParserHandle::parse(Self, String) -> SyntaxTree?
+pub fn ParserHandle::set_language(Self, Int) -> Bool
+
+pub struct Point {
+  row : Int
+  col : Int
+}
+pub fn Point::new(Int, Int) -> Self
+
+pub struct QueryHandle {
+  mut ptr : Int64
+  lang_ptr : Int64
+}
+pub fn QueryHandle::compile(Self, String) -> Bool
+pub fn QueryHandle::free(Self) -> Unit
+pub fn QueryHandle::new(Int64) -> Self
+
+pub struct QueryMatch {
+  pattern_index : Int
+  captures : Array[Capture]
+}
+pub fn QueryMatch::new(Int, Array[Capture]) -> Self
+
+pub struct Range {
+  start : Point
+  end : Point
+}
+pub fn Range::new(Point, Point) -> Self
+
+pub struct SyntaxNode {
+  data : Bytes
+  tree : SyntaxTree
+}
+pub fn SyntaxNode::new(Bytes, SyntaxTree) -> Self
+
+pub struct SyntaxTree {
+  ptr : Int64
+}
+pub fn SyntaxTree::new(Int64) -> Self
+
+// Type aliases
+
+// Traits
+

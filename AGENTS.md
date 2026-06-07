@@ -18,9 +18,11 @@ host/         — AgentHost (register → activate → call → shutdown), Agent
 agent/        — AgentBase, create_metadata
 agents/       — ChatAgent (LLM + ToolRegistry, closure-based state via `let mut`)
 llm/          — LLMProviderHandle, ChatMessage, LLMConfig, DeepSeekProvider (stub)
-tool/         — ToolRegistry + builtin/ (echo, greet)
+tool/         — ToolRegistry + builtin/ (echo, greet, shell)
 http/         — MockHttpClient (HTTP abstraction, no external deps)
 orchestration/ — Workflow + HandoffDef + StepDef (struct-based)
+language/     — Tree-sitter C FFI: parse, query, serialize AST (native-stub)
+embedding/    — ONNX Runtime C FFI: embedding generation (native-stub)
 ```
 
 ## MoonBit Language Quirks (moonc v0.9.3)
@@ -42,11 +44,13 @@ These are hard-earned rules from actual compilation errors:
 ## Commands
 
 ```sh
-moon check --target native   # type-check (primary verification — no C compiler needed)
+moon check --target native   # type-check (no C compiler needed)
 moon fmt                     # format code
 moon info                    # update .mbti interface files
 moon run cmd/ltma            # run CLI (needs MSVC environment)
 moon test                    # run tests
+.\build_native.ps1           # full native build (sets INCLUDE/LIB for C stubs)
+```
 
 ## Moon IDE — semantic code navigation (prefer over grep)
 
@@ -88,6 +92,17 @@ $env:PATH = "C:\ProgramData\mingw64\mingw64\bin;$env:PATH"
 ```
 
 Note: `moonbitlang/async` dependency only supports MSVC on Windows. For packages without async deps, MinGW works fine.
+
+### Build Dependencies (C libs for native stubs)
+
+Tree-sitter (v0.26.9, rebuilt from source in `.mooncaches/tree-sitter-0.26.9/`)
+and ONNX Runtime C libraries are in `.mooncaches/`. The build script
+`build_native.ps1` sets `INCLUDE` and `LIB` env vars automatically (workaround for
+`cc-flags` not being forwarded by `moonc` v0.9.3).
+
+```pwsh
+.\build_native.ps1           # full native build
+```
 ```
 
 **Final step**: always run `moon info && moon fmt` before finishing. Check `.mbti` diffs for unexpected API changes.

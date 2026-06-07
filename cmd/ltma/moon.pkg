@@ -11,6 +11,7 @@ import {
   "livingtree/ltma/embedding",
   "livingtree/ltma/storage",
   "livingtree/ltma/tui",
+  "livingtree/ltma/language",
   "moonbitlang/async",
   "moonbitlang/x/fs" @xfs,
   "moonbitlang/core/env",

@@ -22,7 +22,9 @@ pub enum Command {
   Demo
   Run(String, String)
   Chat
-  List
+  AsyncChat(String, String, String)
+  ListAgents
+  ListProviders
   Help
   Version
 }

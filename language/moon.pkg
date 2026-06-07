@@ -1,0 +1,33 @@
+import {
+  "livingtree/ltma/core",
+  "livingtree/ltma/tool",
+  "moonbitlang/core/encoding/utf8",
+  "moonbitlang/core/string",
+  "moonbitlang/core/debug",
+}
+
+options(
+  "native-stub": [
+    "stub.c",
+    "grammar_c.c",
+    "grammar_cpp.c",
+    "grammar_rust.c",
+    "grammar_python.c",
+    "grammar_javascript.c",
+    "grammar_go.c",
+    "grammar_java.c",
+    "grammar_typescript.c",
+    "scanner_typescript.c",
+    "grammar_csharp.c",
+    "scanner_csharp.c",
+  ],
+  targets: {
+    "stub.mbt": [ "native" ],
+    "types.mbt": [ "native" ],
+    "parser.mbt": [ "native" ],
+    "query.mbt": [ "native" ],
+    "languages.mbt": [ "native" ],
+    "codec.mbt": [ "native" ],
+    "tools.mbt": [ "native" ],
+  },
+)
