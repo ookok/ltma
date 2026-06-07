@@ -1,0 +1,7 @@
+import {
+  "mizchi/tui/vnode",
+  "mizchi/tui/io" @tui_io,
+  "mizchi/signals",
+}
+
+supported_targets = "native"

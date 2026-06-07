@@ -1,9 +1,10 @@
 import {
   "livingtree/ltma/core",
   "livingtree/ltma/host",
-  "mizchi/tui" @miztui,
-  "mizchi/tui/vnode",
+  "livingtree/ltma/tui/engine",
+  "mizchi/tui" @mtui,
   "mizchi/tui/io" @tui_io,
+  "mizchi/signals",
 }
 
 supported_targets = "native"

@@ -16,6 +16,7 @@ preferred_target = "native"
 
 import {
   "mizchi/tui@0.10.0",
+  "mizchi/signals@0.6.4",
   "moonbitlang/async@0.19.2",
   "moonbitlang/x@0.4.45",
   "myfreess/sqlite3@0.1.1",
